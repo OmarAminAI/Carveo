@@ -92,7 +92,7 @@ graph TD
     style H fill:#00bcd4,color:#fff
     style I fill:#3f51b5,color:#fff
 ```
-## 🔄 Data Flow Sequence
+## 🔄 Sequence Flow Diagram
 
 ```mermaid
 
