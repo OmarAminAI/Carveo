@@ -31,6 +31,91 @@ The Automotive Listing Platform is an intelligent vehicle listing system that:
 - Email verification before processing
 - No hardcoded credentials
 
+
+# Solution Design Diagram
+
+## 📊 System Architecture Diagram
+
+```mermaid
+graph TD
+    subgraph "User Interface"
+        A[🖥️ Streamlit App]
+    end
+    
+    subgraph "Processing Pipeline"
+        B[🛡️ Input Sanitizer]
+        C[🤖 AI Feature Extractor]
+        D[📷 Image Classifier]
+    end
+    
+    subgraph "Services"
+        E[📧 Email Service]
+        F[⚙️ Configuration]
+    end
+    
+    subgraph "External APIs"
+        G[☁️ Azure OpenAI]
+        H[📮 Gmail SMTP]
+    end
+    
+    I[👤 User] -->|Upload & Describe| A
+    A -->|Validate Input| B
+    B -->|Clean Text| C
+    C -->|Extract Features| G
+    G -->|Structured Data| C
+    A -->|Image| D
+    C -->|Car Data| E
+    D -->|Body Type| E
+    E -->|Send Listing| H
+    H -->|Email Sent| I
+    
+    F -.->|API Keys| C
+    F -.->|Email Config| E
+    F -.->|Security Rules| B
+    
+    style A fill:#4caf50,color:#fff
+    style B fill:#ff9800,color:#fff
+    style C fill:#2196f3,color:#fff
+    style D fill:#9c27b0,color:#fff
+    style E fill:#f44336,color:#fff
+    style F fill:#607d8b,color:#fff
+    style G fill:#ffc107,color:#000
+    style H fill:#00bcd4,color:#fff
+    style I fill:#3f51b5,color:#fff
+```
+## 🔄 Data Flow Sequence
+
+```mermaid
+
+sequenceDiagram
+    participant U as User
+    participant UI as Streamlit UI
+    participant CS as Car Service
+    participant IS as Input Sanitizer
+    participant FE as Feature Extractor
+    participant AI as Azure OpenAI
+    participant ES as Email Service
+    participant SMTP as Gmail SMTP
+    
+    U->>UI: Upload image + description
+    UI->>UI: Validate email configured
+    UI->>CS: Process listing request
+    CS->>IS: Sanitize description
+    IS->>IS: Check dangerous patterns
+    IS-->>CS: Clean text
+    CS->>FE: Extract features
+    FE->>AI: API request with prompt
+    AI-->>FE: Structured car data
+    FE-->>CS: Parsed features
+    CS->>CS: Add image classification
+    CS-->>UI: Success + car data
+    UI->>ES: Send email request
+    ES->>SMTP: Send formatted email
+    SMTP-->>ES: Delivery confirmation
+    ES-->>UI: Email sent status
+    UI-->>U: Display success summary
+```
+
 ## 🏗️ Architecture
 
 ```
@@ -59,7 +144,7 @@ automotive-listing-platform/
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/yourusername/automotive-listing-platform](https://github.com/OmarAminAI/car-selling-platform.git
+git clone [https://github.com/OmarAminAI/car-selling-platform]
 cd automotive-listing-platform
 ```
 
