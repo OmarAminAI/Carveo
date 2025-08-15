@@ -220,12 +220,6 @@ The system sends emails with:
 - Ensure email verification was successful
 - Check Gmail sending limits (500 emails/day)
 
-### Debug Mode
-Enable debug mode in the sidebar to view:
-- Current configuration values
-- Email settings (masked)
-- System status
-- File type restrictions
 
 ## 📊 API Response Format
 
@@ -295,10 +289,6 @@ python-dotenv>=1.0.0
 - Built with [Streamlit](https://streamlit.io/)
 - Powered by [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
 - Uses [LangChain](https://langchain.com/) for AI orchestration
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 👤 Author
 
