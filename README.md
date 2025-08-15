@@ -303,6 +303,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👤 Author
 
 Your Name
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your Name](https://linkedin.com/in/yourname)
+- GitHub: [@OmarAminAI](https://github.com/OmarAminAI)
+- LinkedIn: [Omar Sadek](https://www.linkedin.com/in/omar-sadek-307430239/)
 
