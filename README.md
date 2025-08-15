@@ -1,11 +1,20 @@
+## ❗ Project Status
+This is a technical assessment project created for Orion360's interview process.
+
+## ⚠️ Intellectual Property
+This code was developed by Omar Amin as part of a technical evaluation. 
+Usage rights are to be determined by agreement between the author and Orion360.
+
 # Automotive Listing Platform
+
+
 
 A professional web application for processing and submitting vehicle listings with AI-powered feature extraction and automated email delivery.
 
 ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![Streamlit](https://img.shields.io/badge/streamlit-1.28+-red.svg)
 ![Azure OpenAI](https://img.shields.io/badge/Azure%20OpenAI-GPT--4-green.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Status](https://img.shields.io/badge/status-Assessment_Project-orange.svg)
 
 ## 🚗 Overview
 
@@ -29,7 +38,92 @@ The Automotive Listing Platform is an intelligent vehicle listing system that:
 - Input sanitization with dangerous pattern detection
 - Character filtering and length limits
 - Email verification before processing
-- No hardcoded credentials
+- No hardcoded email credentials
+
+
+# Solution Design Diagram
+
+## 📊 System Architecture Diagram
+
+```mermaid
+graph TD
+    subgraph "User Interface"
+        A[🖥️ Streamlit App]
+    end
+    
+    subgraph "Processing Pipeline"
+        B[🛡️ Input Sanitizer]
+        C[🤖 AI Feature Extractor]
+        D[📷 Image Classifier]
+    end
+    
+    subgraph "Services"
+        E[📧 Email Service]
+        F[⚙️ Configuration]
+    end
+    
+    subgraph "External APIs"
+        G[☁️ Azure OpenAI]
+        H[📮 Gmail SMTP]
+    end
+    
+    I[👤 User] -->|Upload & Describe| A
+    A -->|Validate Input| B
+    B -->|Clean Text| C
+    C -->|Extract Features| G
+    G -->|Structured Data| C
+    A -->|Image| D
+    C -->|Car Data| E
+    D -->|Body Type| E
+    E -->|Send Listing| H
+    H -->|Email Sent| I
+    
+    F -.->|API Keys| C
+    F -.->|Email Config| E
+    F -.->|Security Rules| B
+    
+    style A fill:#4caf50,color:#fff
+    style B fill:#ff9800,color:#fff
+    style C fill:#2196f3,color:#fff
+    style D fill:#9c27b0,color:#fff
+    style E fill:#f44336,color:#fff
+    style F fill:#607d8b,color:#fff
+    style G fill:#ffc107,color:#000
+    style H fill:#00bcd4,color:#fff
+    style I fill:#3f51b5,color:#fff
+```
+## 🔄 Data Flow Sequence
+
+```mermaid
+
+sequenceDiagram
+    participant U as User
+    participant UI as Streamlit UI
+    participant CS as Car Service
+    participant IS as Input Sanitizer
+    participant FE as Feature Extractor
+    participant AI as Azure OpenAI
+    participant ES as Email Service
+    participant SMTP as Gmail SMTP
+    
+    U->>UI: Upload image + description
+    UI->>UI: Validate email configured
+    UI->>CS: Process listing request
+    CS->>IS: Sanitize description
+    IS->>IS: Check dangerous patterns
+    IS-->>CS: Clean text
+    CS->>FE: Extract features
+    FE->>AI: API request with prompt
+    AI-->>FE: Structured car data
+    FE-->>CS: Parsed features
+    CS->>CS: Add image classification
+    CS-->>UI: Success + car data
+    UI->>ES: Send email request
+    ES->>SMTP: Send formatted email
+    SMTP-->>ES: Delivery confirmation
+    ES-->>UI: Email sent status
+    UI-->>U: Display success summary
+```
 
 ## 🏗️ Architecture
 
@@ -59,7 +153,7 @@ automotive-listing-platform/
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/yourusername/automotive-listing-platform](https://github.com/OmarAminAI/car-selling-platform.git
+git clone https://github.com/OmarAminAI/car-selling-platform.git
 cd automotive-listing-platform
 ```
 
@@ -220,12 +314,6 @@ The system sends emails with:
 - Ensure email verification was successful
 - Check Gmail sending limits (500 emails/day)
 
-### Debug Mode
-Enable debug mode in the sidebar to view:
-- Current configuration values
-- Email settings (masked)
-- System status
-- File type restrictions
 
 ## 📊 API Response Format
 
@@ -296,13 +384,8 @@ python-dotenv>=1.0.0
 - Powered by [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
 - Uses [LangChain](https://langchain.com/) for AI orchestration
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 👤 Author
 
-Your Name
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your Name](https://linkedin.com/in/yourname)
+- GitHub: [@OmarAminAI](https://github.com/OmarAminAI)
+- LinkedIn: [Omar Sadek](https://www.linkedin.com/in/omar-sadek-307430239/)
 
