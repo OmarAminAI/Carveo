@@ -242,7 +242,9 @@ if submit_button:
                     )
                     
                     if not success:
+                        # Display detailed error message
                         UIComponents.render_alert(error_msg, type="error")
+                        
                     else:
                         # Prepare image bytes for email
                         img_byte_arr = io.BytesIO()
