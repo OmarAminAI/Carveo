@@ -38,7 +38,7 @@ The Automotive Listing Platform is an intelligent vehicle listing system that:
 - Input sanitization with dangerous pattern detection
 - Character filtering and length limits
 - Email verification before processing
-- No hardcoded credentials
+- No hardcoded email credentials
 
 
 # Solution Design Diagram
