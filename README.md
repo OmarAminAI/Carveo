@@ -154,7 +154,7 @@ automotive-listing-platform/
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/OmarAminAI/car-selling-platform.git
-cd automotive-listing-platform
+cd car-selling-platform
 ```
 
 ### 2. Create Virtual Environment
