@@ -19,9 +19,9 @@ class EmailConfig:
 @dataclass
 class AzureOpenAIConfig:
     """Azure OpenAI configuration parameters"""
-    API_KEY: str = "DGiUH36EWKWnVTY104jQ036DkFaKh07jKdUiGCXBU0WfZkATjUuPJQQJ99BHACHYHv6XJ3w3AAABACOGJSBL"
-    DEPLOYMENT_NAME: str = "gpt-4o-mini-OE715"
-    ENDPOINT: str = "https://orionopenai-techtest.openai.azure.com/"  # Just the base URL
+    API_KEY: str = "your-api-key"
+    DEPLOYMENT_NAME: str = "your-deployment-name"
+    ENDPOINT: str = "https://your-endpoint.openai.azure.com/"
     API_VERSION: str = "2025-01-01-preview"
     TEMPERATURE: float = 0.0
     MAX_TOKENS: int = 500
