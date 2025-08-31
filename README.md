@@ -1,9 +1,3 @@
-## ❗ Project Status
-This is a technical assessment project created for Orion360's interview process.
-
-## ⚠️ Intellectual Property
-This code was developed by Omar Amin as part of a technical evaluation. 
-Usage rights are to be determined by agreement between the author and Orion360.
 
 # Automotive Listing Platform
 
@@ -14,7 +8,7 @@ A professional web application for processing and submitting vehicle listings wi
 ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![Streamlit](https://img.shields.io/badge/streamlit-1.28+-red.svg)
 ![Azure OpenAI](https://img.shields.io/badge/Azure%20OpenAI-GPT--4-green.svg)
-![Status](https://img.shields.io/badge/status-Assessment_Project-orange.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 ## 🚗 Overview
 
@@ -92,7 +86,7 @@ graph TD
     style H fill:#00bcd4,color:#fff
     style I fill:#3f51b5,color:#fff
 ```
-## 🔄 Data Flow Sequence
+## 🔄 Sequence Flow Diagram
 
 ```mermaid
 
@@ -154,7 +148,7 @@ automotive-listing-platform/
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/OmarAminAI/car-selling-platform.git
-cd automotive-listing-platform
+cd car-selling-platform
 ```
 
 ### 2. Create Virtual Environment
