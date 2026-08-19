@@ -1,14 +1,14 @@
 from logging.config import fileConfig
+import os
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from app.core.config import get_settings
 from app.db.base import Base
 from app.db import models  # noqa: F401
 
 config = context.config
-config.set_main_option("sqlalchemy.url", get_settings().database_url)
+config.set_main_option("sqlalchemy.url", os.getenv("CARVEO_DATABASE_URL", config.get_main_option("sqlalchemy.url")))
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 target_metadata = Base.metadata
@@ -32,4 +32,3 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
-

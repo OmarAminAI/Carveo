@@ -27,3 +27,9 @@ def test_results_reject_incomplete_intent() -> None:
         response = client.get(f"/api/v1/sessions/{session_id}/results")
 
     assert response.status_code == 409
+
+
+def test_readiness_confirms_test_database() -> None:
+    with TestClient(app) as client:
+        assert client.get("/health").json() == {"status": "ok"}
+        assert client.get("/ready").json() == {"status": "ready"}

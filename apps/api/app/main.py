@@ -1,24 +1,13 @@
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import health, search
 from app.core.config import get_settings
-from app.db.base import Base
-from app.db import models  # noqa: F401 - imports model metadata before create_all
-from app.db.session import engine
 
 settings = get_settings()
 
 
-@asynccontextmanager
-async def lifespan(_: FastAPI):
-    Base.metadata.create_all(bind=engine)
-    yield
-
-
-app = FastAPI(title=settings.app_name, version="0.1.0", lifespan=lifespan)
+app = FastAPI(title=settings.app_name, version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,
@@ -28,4 +17,3 @@ app.add_middleware(
 )
 app.include_router(health.router)
 app.include_router(search.router, prefix="/api/v1")
-
