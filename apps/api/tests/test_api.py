@@ -33,3 +33,28 @@ def test_readiness_confirms_test_database() -> None:
     with TestClient(app) as client:
         assert client.get("/health").json() == {"status": "ok"}
         assert client.get("/ready").json() == {"status": "ready"}
+
+
+def test_catalogue_can_filter_compare_and_save_anonymous_search() -> None:
+    profile_id = "browser-profile-123456789"
+    with TestClient(app) as client:
+        listings = client.get("/api/v1/listings", params={"market": "AE", "make": "Mercedes-Benz", "price_max": 180000})
+        assert listings.status_code == 200
+        payload = listings.json()
+        assert payload["total"] == 3
+        assert payload["items"][0]["typical_price"] is not None
+        assert payload["items"][0]["condition"]
+
+        detail = client.get("/api/v1/listings/ae-001")
+        assert detail.status_code == 200
+        assert detail.json()["deal_label"] in {"Great deal", "Good deal", "Fair price", "Verify price"}
+
+        comparison = client.post("/api/v1/compare", json={"listing_ids": ["ae-001", "ae-002"]})
+        assert comparison.status_code == 200
+        assert len(comparison.json()["listings"]) == 2
+
+        saved = client.put("/api/v1/profile/searches", json={"profile_id": profile_id, "name": "C-Class search", "query": {"make": "Mercedes-Benz"}, "priority_refresh": True})
+        assert saved.status_code == 201
+        saved_id = saved.json()["id"]
+        assert client.get("/api/v1/profile/searches", params={"profile_id": profile_id}).json()[0]["id"] == saved_id
+        assert client.delete(f"/api/v1/profile/searches/{saved_id}", params={"profile_id": profile_id}).status_code == 204
