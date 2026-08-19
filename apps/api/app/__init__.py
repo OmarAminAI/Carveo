@@ -1,2 +1,0 @@
-"""Carveo buyer-search API."""
-
