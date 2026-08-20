@@ -10,7 +10,9 @@ bun install
 bun run dev
 ```
 
-Open [http://localhost:3000/en-ae](http://localhost:3000/en-ae). Isolated tests use fixture mode. For integrated development, start `docker compose up --build` from `../backend`, or set `CARVEO_CATALOGUE_SOURCE=api` and `CARVEO_API_INTERNAL_URL=http://localhost:8000` before running the frontend.
+Open [http://localhost:3000/en-ae](http://localhost:3000/en-ae). The frontend uses the FastAPI catalogue by default. Set `CARVEO_CATALOGUE_SOURCE=fixture` only for isolated fixture development.
+
+For integrated development, start `docker compose up --build` from `../backend`. To run browser journeys against that live API, use `bun run test:e2e:api` while the backend stack is running.
 
 ## Verify
 

@@ -4,16 +4,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MarketCharts } from "@/components/market-charts";
 import { VehicleCard } from "@/components/vehicle-card";
-import { parseListingQuery, slugifyVehicleName } from "@/domain/query";
+import { resolveModelSegment } from "@/app/en-ae/market/data";
 import { catalogueRepository } from "@/repositories";
 
 async function resolveSegment(makeSlug: string, modelSlug: string) {
-  const all = await catalogueRepository.search({ ...parseListingQuery(new URLSearchParams()), pageSize: 24 });
-  const first = all.items.find((item) => slugifyVehicleName(item.make) === makeSlug && slugifyVehicleName(item.model) === modelSlug);
-  if (!first) return null;
-  const listings = all.items.filter((item) => item.make === first.make && item.model === first.model);
-  const summary = await catalogueRepository.getModelSummary(first.make, first.model);
-  return { first, listings, summary: summary! };
+  return resolveModelSegment(makeSlug, modelSlug, catalogueRepository);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ make: string; model: string }> }): Promise<Metadata> { const { make, model } = await params; const segment = await resolveSegment(make, model); return segment ? { title: `${segment.first.make} ${segment.first.model} UAE market`, description: `Fixture price, mileage and active-listing intelligence for the ${segment.first.make} ${segment.first.model} in the UAE.`, alternates: { canonical: `/en-ae/market/${make}/${model}` } } : { title: "Model market not found" }; }

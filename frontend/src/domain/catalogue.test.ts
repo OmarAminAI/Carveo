@@ -2,6 +2,32 @@ import { describe, expect, it } from "vitest";
 import { fixtureCatalogue } from "@/data/fixture-catalogue";
 import { FixtureCatalogueRepository } from "@/repositories/fixture-catalogue-repository";
 import { parseListingQuery, slugifyVehicleName, toListingSearchParams } from "@/domain/query";
+import { conditionEvidenceSchema, listingSchema } from "@/domain/schemas";
+
+describe("API catalogue schemas", () => {
+  it("accepts nullable source claims from FastAPI", () => {
+    expect(
+      conditionEvidenceSchema.parse({
+        kind: "unknown",
+        label: "Condition not stated",
+        detail: "No source evidence was provided.",
+        sourceClaim: null,
+      }).sourceClaim,
+    ).toBeNull();
+  });
+
+  it("accepts approved sources and nullable deal positions from the API contract", () => {
+    const listing = structuredClone(fixtureCatalogue[0]);
+    const apiListing = {
+      ...listing,
+      source: { ...listing.source, status: "Approved" as const },
+      dealPosition: null,
+    };
+
+    expect(listingSchema.parse(apiListing).source.status).toBe("Approved");
+    expect(listingSchema.parse(apiListing).dealPosition).toBeNull();
+  });
+});
 
 describe("listing query", () => {
   it("normalizes URL values into a safe UAE query", () => {

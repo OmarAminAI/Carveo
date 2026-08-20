@@ -1,6 +1,6 @@
 import type { DealPosition as DealPositionType } from "@/domain/schemas";
 
-export function DealPosition({ position }: { position?: DealPositionType }) {
+export function DealPosition({ position }: { position?: DealPositionType | null }) {
   if (!position || position.label === "Limited data") return <span className="text-xs text-muted-foreground">Limited market data</span>;
   const positive = position.label === "Below typical";
   return (

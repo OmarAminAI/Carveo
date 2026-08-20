@@ -21,6 +21,7 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     env: {
       CARVEO_CATALOGUE_SOURCE: process.env.CARVEO_CATALOGUE_SOURCE ?? "fixture",
+      CARVEO_API_INTERNAL_URL: process.env.CARVEO_API_INTERNAL_URL ?? "http://127.0.0.1:8000",
     },
   },
 });

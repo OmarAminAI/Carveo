@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "node ./node_modules/@playwright/test/cli.js test",
+    "test:e2e:api": "bun --env-file=.env.e2e.api run test:e2e",
     "typecheck": "bun --bun tsc --noEmit",
     "contracts:generate": "openapi-typescript ../backend/contracts/openapi.json -o src/contracts/api.ts",
     "contracts:check": "bun run contracts:generate && git diff --exit-code -- src/contracts/api.ts ../backend/contracts/openapi.json"

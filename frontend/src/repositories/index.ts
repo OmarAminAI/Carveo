@@ -2,9 +2,15 @@ import { fixtureCatalogue } from "@/data/fixture-catalogue";
 import { FixtureCatalogueRepository } from "@/repositories/fixture-catalogue-repository";
 import { ApiCatalogueRepository } from "@/repositories/api-catalogue-repository";
 
-const source = process.env.CARVEO_CATALOGUE_SOURCE ?? (process.env.NODE_ENV === "development" ? "api" : "fixture");
-const apiUrl = process.env.CARVEO_API_INTERNAL_URL ?? "http://localhost:8000";
+type CatalogueEnvironment = Readonly<Record<string, string | undefined>>;
 
-export const catalogueRepository = source === "api"
-  ? new ApiCatalogueRepository(apiUrl)
-  : new FixtureCatalogueRepository(fixtureCatalogue);
+export function createCatalogueRepository(environment: CatalogueEnvironment = process.env) {
+  const source = environment.CARVEO_CATALOGUE_SOURCE ?? "api";
+  const apiUrl = environment.CARVEO_API_INTERNAL_URL ?? "http://localhost:8000";
+
+  return source === "fixture"
+    ? new FixtureCatalogueRepository(fixtureCatalogue)
+    : new ApiCatalogueRepository(apiUrl);
+}
+
+export const catalogueRepository = createCatalogueRepository();

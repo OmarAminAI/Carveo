@@ -4,7 +4,7 @@ export const conditionEvidenceSchema = z.object({
   kind: z.enum(["positive", "warning", "unknown"]),
   label: z.string(),
   detail: z.string(),
-  sourceClaim: z.string().optional(),
+  sourceClaim: z.string().nullable().optional(),
 });
 
 export const priceObservationSchema = z.object({
@@ -35,7 +35,11 @@ export const listingSchema = z.object({
   bodyType: z.enum(["SUV", "Sedan", "Coupe", "Hatchback", "Pickup", "Convertible"]),
   specifications: z.enum(["GCC", "American", "European", "Japanese"]),
   sellerType: z.enum(["Dealer", "Private"]),
-  source: z.object({ name: z.string(), listingUrl: z.string().url(), status: z.literal("Fixture") }),
+  source: z.object({
+    name: z.string(),
+    listingUrl: z.string().url(),
+    status: z.enum(["Fixture", "Approved"]),
+  }),
   description: z.string(),
   features: z.array(z.string()),
   photos: z.array(z.string()).min(1),
@@ -44,7 +48,7 @@ export const listingSchema = z.object({
   conditionEvidence: z.array(conditionEvidenceSchema),
   priceHistory: z.array(priceObservationSchema),
   duplicateOffers: z.array(z.object({ source: z.string(), price: z.number(), url: z.string().url() })),
-  dealPosition: dealPositionSchema.optional(),
+  dealPosition: dealPositionSchema.nullable().optional(),
 });
 
 export type Listing = z.infer<typeof listingSchema>;
