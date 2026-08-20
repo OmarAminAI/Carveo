@@ -1,0 +1,1 @@
+export default function CarsLoading() { return <main className="shell min-h-screen py-12"><div className="h-12 w-72 animate-pulse bg-border" /><div className="mt-8 grid gap-4 md:grid-cols-3">{Array.from({ length: 9 }, (_, index) => <div key={index} className="aspect-[3/4] animate-pulse bg-border" />)}</div></main>; }
