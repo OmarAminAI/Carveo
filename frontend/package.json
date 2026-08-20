@@ -1,0 +1,53 @@
+{
+  "name": "@carveo/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --bun next dev",
+    "build": "bun --bun next build",
+    "start": "bun --bun next start",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "node ./node_modules/@playwright/test/cli.js test",
+    "typecheck": "bun --bun tsc --noEmit",
+    "contracts:generate": "openapi-typescript ../backend/contracts/openapi.json -o src/contracts/api.ts",
+    "contracts:check": "bun run contracts:generate && git diff --exit-code -- src/contracts/api.ts ../backend/contracts/openapi.json"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.0.0",
+    "@fontsource/barlow-condensed": "^5.2.6",
+    "@tanstack/react-table": "^8.21.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "embla-carousel-react": "^8.6.0",
+    "geist": "^1.5.1",
+    "lucide-react": "^0.468.0",
+    "motion": "^12.0.0",
+    "next": "^16.0.0",
+    "openapi-fetch": "^0.15.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "recharts": "^3.0.0",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.3.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.52.0",
+    "@tailwindcss/postcss": "^4.1.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "jsdom": "^26.1.0",
+    "openapi-typescript": "^7.9.0",
+    "tailwindcss": "^4.1.0",
+    "tw-animate-css": "^1.3.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.0"
+  }
+}

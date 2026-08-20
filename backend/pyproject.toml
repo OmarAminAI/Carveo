@@ -1,0 +1,48 @@
+[project]
+name = "carveo-workspace"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = ["carveo-api", "carveo-core", "carveo-worker"]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["apps/api", "packages/carveo-core", "workers/ingestion"]
+
+[tool.uv.sources]
+carveo-api = { workspace = true }
+carveo-core = { workspace = true }
+carveo-worker = { workspace = true }
+
+[dependency-groups]
+dev = [
+  "anyio>=4.10,<5",
+  "httpx>=0.28,<1",
+  "mypy>=1.17,<2",
+  "pytest>=9,<10",
+  "pytest-cov>=6,<7",
+  "ruff>=0.12,<1",
+  "testcontainers[postgres,redis]>=4.12,<5",
+]
+
+[tool.pytest.ini_options]
+addopts = "-q --strict-config --strict-markers"
+testpaths = ["apps/api/tests", "packages/carveo-core/tests", "workers/ingestion/tests"]
+markers = [
+  "integration: requires Docker services",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+exclude = ["backend", "frontend", ".venv", ".uv-cache"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["B008"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["carveo_core", "carveo_api", "carveo_worker"]

@@ -1,0 +1,95 @@
+name: carveo
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-carveo}
+      POSTGRES_USER: ${POSTGRES_USER:-carveo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-carveo}
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    logging: *default-logging
+
+  redis:
+    image: redis:8-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    logging: *default-logging
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      CARVEO_ENVIRONMENT: development
+      CARVEO_DATABASE_URL: ${CARVEO_DATABASE_URL:-postgresql+psycopg://carveo:carveo@postgres:5432/carveo}
+      CARVEO_CORS_ORIGINS: '${CARVEO_CORS_ORIGINS:-["http://localhost:3000"]}'
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    logging: *default-logging
+
+  worker:
+    build:
+      context: .
+      dockerfile: workers/ingestion/Dockerfile
+    environment:
+      CARVEO_REDIS_URL: ${CARVEO_REDIS_URL:-redis://redis:6379/0}
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "uv", "run", "--frozen", "--package", "carveo-worker", "python", "-m", "carveo_worker.health"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    logging: *default-logging
+
+  web:
+    build:
+      context: ..
+      dockerfile: frontend/Dockerfile
+    environment:
+      CARVEO_CATALOGUE_SOURCE: api
+      CARVEO_API_INTERNAL_URL: http://api:8000
+      NEXT_PUBLIC_CARVEO_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bun", "-e", "await fetch('http://localhost:3000/en-ae').then(r => { if (!r.ok) process.exit(1) })"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+    logging: *default-logging
+
+volumes:
+  postgres-data:
+  redis-data:

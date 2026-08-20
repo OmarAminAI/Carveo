@@ -1,0 +1,1 @@
+"""Carveo ingestion worker shell."""

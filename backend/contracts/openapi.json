@@ -1,0 +1,1111 @@
+{
+  "components": {
+    "schemas": {
+      "CompareRequest": {
+        "properties": {
+          "listingIds": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 4,
+            "minItems": 1,
+            "title": "Listingids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "listingIds"
+        ],
+        "title": "CompareRequest",
+        "type": "object"
+      },
+      "CompareResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Listing"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "missingIds": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missingids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items",
+          "missingIds"
+        ],
+        "title": "CompareResponse",
+        "type": "object"
+      },
+      "ConditionEvidence": {
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "positive",
+              "warning",
+              "unknown"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "sourceClaim": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sourceclaim"
+          }
+        },
+        "required": [
+          "kind",
+          "label",
+          "detail"
+        ],
+        "title": "ConditionEvidence",
+        "type": "object"
+      },
+      "DealPosition": {
+        "properties": {
+          "differenceAmount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Differenceamount"
+          },
+          "differencePercent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Differencepercent"
+          },
+          "label": {
+            "enum": [
+              "Below typical",
+              "Near typical",
+              "Above typical",
+              "Limited data"
+            ],
+            "title": "Label",
+            "type": "string"
+          },
+          "sampleSize": {
+            "minimum": 0.0,
+            "title": "Samplesize",
+            "type": "integer"
+          },
+          "typicalPrice": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typicalprice"
+          }
+        },
+        "required": [
+          "label",
+          "sampleSize"
+        ],
+        "title": "DealPosition",
+        "type": "object"
+      },
+      "DuplicateOffer": {
+        "properties": {
+          "price": {
+            "minimum": 0.0,
+            "title": "Price",
+            "type": "integer"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "price",
+          "url"
+        ],
+        "title": "DuplicateOffer",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "Listing": {
+        "properties": {
+          "bodyType": {
+            "enum": [
+              "SUV",
+              "Sedan",
+              "Coupe",
+              "Hatchback",
+              "Pickup",
+              "Convertible"
+            ],
+            "title": "Bodytype",
+            "type": "string"
+          },
+          "city": {
+            "enum": [
+              "Dubai",
+              "Abu Dhabi",
+              "Sharjah",
+              "Ajman"
+            ],
+            "title": "City",
+            "type": "string"
+          },
+          "conditionEvidence": {
+            "items": {
+              "$ref": "#/components/schemas/ConditionEvidence"
+            },
+            "title": "Conditionevidence",
+            "type": "array"
+          },
+          "currency": {
+            "const": "AED",
+            "title": "Currency",
+            "type": "string"
+          },
+          "dealPosition": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DealPosition"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "duplicateOffers": {
+            "items": {
+              "$ref": "#/components/schemas/DuplicateOffer"
+            },
+            "title": "Duplicateoffers",
+            "type": "array"
+          },
+          "features": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Features",
+            "type": "array"
+          },
+          "firstSeenAt": {
+            "format": "date-time",
+            "title": "Firstseenat",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "lastSeenAt": {
+            "format": "date-time",
+            "title": "Lastseenat",
+            "type": "string"
+          },
+          "make": {
+            "title": "Make",
+            "type": "string"
+          },
+          "market": {
+            "const": "ae",
+            "title": "Market",
+            "type": "string"
+          },
+          "mileageKm": {
+            "minimum": 0.0,
+            "title": "Mileagekm",
+            "type": "integer"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "photos": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Photos",
+            "type": "array"
+          },
+          "price": {
+            "minimum": 0.0,
+            "title": "Price",
+            "type": "integer"
+          },
+          "priceHistory": {
+            "items": {
+              "$ref": "#/components/schemas/PriceObservation"
+            },
+            "title": "Pricehistory",
+            "type": "array"
+          },
+          "sellerType": {
+            "enum": [
+              "Dealer",
+              "Private"
+            ],
+            "title": "Sellertype",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/SourceAttribution"
+          },
+          "specifications": {
+            "enum": [
+              "GCC",
+              "American",
+              "European",
+              "Japanese"
+            ],
+            "title": "Specifications",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "trim": {
+            "title": "Trim",
+            "type": "string"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "market",
+          "title",
+          "make",
+          "model",
+          "trim",
+          "year",
+          "price",
+          "currency",
+          "mileageKm",
+          "city",
+          "bodyType",
+          "specifications",
+          "sellerType",
+          "source",
+          "description",
+          "features",
+          "photos",
+          "firstSeenAt",
+          "lastSeenAt",
+          "conditionEvidence",
+          "priceHistory",
+          "duplicateOffers"
+        ],
+        "title": "Listing",
+        "type": "object"
+      },
+      "ListingPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Listing"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "pageCount": {
+            "title": "Pagecount",
+            "type": "integer"
+          },
+          "pageSize": {
+            "title": "Pagesize",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ],
+        "title": "ListingPage",
+        "type": "object"
+      },
+      "Market": {
+        "properties": {
+          "code": {
+            "const": "ae",
+            "title": "Code",
+            "type": "string"
+          },
+          "currency": {
+            "const": "AED",
+            "title": "Currency",
+            "type": "string"
+          },
+          "locale": {
+            "const": "en-ae",
+            "title": "Locale",
+            "type": "string"
+          },
+          "name": {
+            "const": "United Arab Emirates",
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "locale",
+          "name",
+          "currency"
+        ],
+        "title": "Market",
+        "type": "object"
+      },
+      "ModelInsights": {
+        "properties": {
+          "listings": {
+            "items": {
+              "$ref": "#/components/schemas/Listing"
+            },
+            "title": "Listings",
+            "type": "array"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ModelMarketSummary"
+          }
+        },
+        "required": [
+          "summary",
+          "listings"
+        ],
+        "title": "ModelInsights",
+        "type": "object"
+      },
+      "ModelMarketSummary": {
+        "properties": {
+          "activeListings": {
+            "title": "Activelistings",
+            "type": "integer"
+          },
+          "lastUpdatedAt": {
+            "format": "date-time",
+            "title": "Lastupdatedat",
+            "type": "string"
+          },
+          "make": {
+            "title": "Make",
+            "type": "string"
+          },
+          "maxMileage": {
+            "title": "Maxmileage",
+            "type": "integer"
+          },
+          "maxPrice": {
+            "title": "Maxprice",
+            "type": "integer"
+          },
+          "medianPrice": {
+            "title": "Medianprice",
+            "type": "integer"
+          },
+          "minMileage": {
+            "title": "Minmileage",
+            "type": "integer"
+          },
+          "minPrice": {
+            "title": "Minprice",
+            "type": "integer"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          }
+        },
+        "required": [
+          "make",
+          "model",
+          "activeListings",
+          "medianPrice",
+          "minPrice",
+          "maxPrice",
+          "minMileage",
+          "maxMileage",
+          "lastUpdatedAt"
+        ],
+        "title": "ModelMarketSummary",
+        "type": "object"
+      },
+      "PriceObservation": {
+        "properties": {
+          "observedAt": {
+            "format": "date-time",
+            "title": "Observedat",
+            "type": "string"
+          },
+          "price": {
+            "minimum": 0.0,
+            "title": "Price",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "observedAt",
+          "price"
+        ],
+        "title": "PriceObservation",
+        "type": "object"
+      },
+      "SourceAttribution": {
+        "properties": {
+          "listingUrl": {
+            "title": "Listingurl",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "Fixture",
+              "Approved"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "listingUrl",
+          "status"
+        ],
+        "title": "SourceAttribution",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "Carveo Catalogue API",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/compare": {
+      "post": {
+        "operationId": "compare_api_v1_compare_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompareRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompareResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Compare",
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
+    "/api/v1/listings": {
+      "get": {
+        "operationId": "listings_api_v1_listings_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "market",
+            "required": false,
+            "schema": {
+              "default": "ae",
+              "title": "Market",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "make",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Make",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "model",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Model",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bodyType",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Bodytype",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "yearMin",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Yearmin"
+            }
+          },
+          {
+            "in": "query",
+            "name": "yearMax",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Yearmax"
+            }
+          },
+          {
+            "in": "query",
+            "name": "priceMin",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Pricemin"
+            }
+          },
+          {
+            "in": "query",
+            "name": "priceMax",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Pricemax"
+            }
+          },
+          {
+            "in": "query",
+            "name": "mileageMax",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mileagemax"
+            }
+          },
+          {
+            "in": "query",
+            "name": "specifications",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Specifications",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sellerType",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Sellertype",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "evidence",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Evidence",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "City",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "best-match",
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "default": 12,
+              "title": "Pagesize",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListingPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Listings",
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
+    "/api/v1/listings/{listing_id}": {
+      "get": {
+        "operationId": "detail_api_v1_listings__listing_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "listing_id",
+            "required": true,
+            "schema": {
+              "title": "Listing Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Listing"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Detail",
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
+    "/api/v1/listings/{listing_id}/related": {
+      "get": {
+        "operationId": "related_api_v1_listings__listing_id__related_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "listing_id",
+            "required": true,
+            "schema": {
+              "title": "Listing Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 4,
+              "maximum": 12,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Listing"
+                  },
+                  "title": "Response Related Api V1 Listings  Listing Id  Related Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Related",
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
+    "/api/v1/markets": {
+      "get": {
+        "operationId": "markets_api_v1_markets_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Market"
+                  },
+                  "title": "Response Markets Api V1 Markets Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Markets",
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
+    "/api/v1/models/{make}/{model}/insights": {
+      "get": {
+        "operationId": "insights_api_v1_models__make___model__insights_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "make",
+            "required": true,
+            "schema": {
+              "title": "Make",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "model",
+            "required": true,
+            "schema": {
+              "title": "Model",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelInsights"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Insights",
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Health Health Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "operations"
+        ]
+      }
+    },
+    "/ready": {
+      "get": {
+        "operationId": "ready_ready_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Ready",
+        "tags": [
+          "operations"
+        ]
+      }
+    }
+  }
+}

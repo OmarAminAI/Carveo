@@ -1,2 +1,0 @@
-import Link from "next/link";
-export default function ModelNotFound() { return <main className="shell flex min-h-[70vh] flex-col items-center justify-center text-center"><h1 className="font-display text-5xl font-semibold uppercase">Model intelligence unavailable</h1><p className="mt-3 text-sm text-muted-foreground">No fixture segment matches this market address.</p><Link href="/en-ae/cars" className="mt-6 bg-obsidian px-5 py-3 text-sm font-semibold text-white">Browse cars</Link></main>; }
