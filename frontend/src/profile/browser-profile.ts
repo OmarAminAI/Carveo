@@ -1,9 +1,18 @@
-import type { BrowserProfile } from "@/domain/schemas";
+import { anonymousConversationSchema, type BrowserProfile } from "@/domain/schemas";
 
 export const PROFILE_STORAGE_KEY = "carveo.profile.v1";
 
 export function createEmptyProfile(id = crypto.randomUUID()): BrowserProfile {
-  return { version: 1, id, shortlistIds: [], compareIds: [], recentViewIds: [], savedSearchDrafts: [], assistantDraft: "" };
+  return {
+    version: 2,
+    id,
+    shortlistIds: [],
+    compareIds: [],
+    recentViewIds: [],
+    savedSearchDrafts: [],
+    assistantDraft: "",
+    anonymousConversations: [],
+  };
 }
 
 const stringArray = (value: unknown) => Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
@@ -11,14 +20,21 @@ const stringArray = (value: unknown) => Array.isArray(value) ? value.filter((ite
 export function migrateProfile(value: unknown, fallbackId = crypto.randomUUID()): BrowserProfile {
   if (!value || typeof value !== "object") return createEmptyProfile(fallbackId);
   const source = value as Record<string, unknown>;
+  const anonymousConversations = Array.isArray(source.anonymousConversations)
+    ? source.anonymousConversations.flatMap((item) => {
+        const parsed = anonymousConversationSchema.safeParse(item);
+        return parsed.success ? [parsed.data] : [];
+      })
+    : [];
   return {
-    version: 1,
+    version: 2,
     id: typeof source.id === "string" ? source.id : fallbackId,
     shortlistIds: stringArray(source.shortlistIds),
     compareIds: stringArray(source.compareIds).slice(0, 4),
     recentViewIds: stringArray(source.recentViewIds).slice(0, 12),
     savedSearchDrafts: Array.isArray(source.savedSearchDrafts) ? source.savedSearchDrafts.filter((item): item is BrowserProfile["savedSearchDrafts"][number] => Boolean(item && typeof item === "object" && "query" in item)) : [],
     assistantDraft: typeof source.assistantDraft === "string" ? source.assistantDraft : "",
+    anonymousConversations,
   };
 }
 

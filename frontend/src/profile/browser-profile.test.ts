@@ -27,11 +27,38 @@ describe("browser profile", () => {
     expect(removed.shortlistIds).toEqual([]);
   });
 
-  it("migrates unknown or malformed storage into a usable v1 profile", () => {
+  it("migrates version-one and malformed storage into a usable v2 profile", () => {
     expect(migrateProfile({ version: 0, shortlistIds: ["old"] }, "fallback")).toEqual(
-      expect.objectContaining({ version: 1, id: "fallback", shortlistIds: ["old"], compareIds: [] }),
+      expect.objectContaining({
+        version: 2,
+        id: "fallback",
+        shortlistIds: ["old"],
+        compareIds: [],
+        anonymousConversations: [],
+      }),
     );
     expect(migrateProfile("broken", "fallback")).toEqual(createEmptyProfile("fallback"));
+  });
+
+  it("keeps only valid anonymous conversations during profile migration", () => {
+    const migrated = migrateProfile({
+      version: 2,
+      anonymousConversations: [
+        {
+          clientId: "conversation-1",
+          title: "Family SUV",
+          status: "active",
+          interpretedIntent: {},
+          createdAt: "2026-08-22T10:00:00Z",
+          updatedAt: "2026-08-22T10:00:00Z",
+          turns: [{ id: "turn-1", role: "buyer", content: "Seven seats" }],
+        },
+        { clientId: 42 },
+      ],
+    }, "fallback");
+
+    expect(migrated.anonymousConversations).toHaveLength(1);
+    expect(migrated.anonymousConversations[0]?.clientId).toBe("conversation-1");
   });
 
   it("saves a search once and moves a repeated query to the front", () => {

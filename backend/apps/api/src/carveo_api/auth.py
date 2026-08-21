@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol, cast
+from typing import Annotated, Protocol, cast
 
 import anyio
 from clerk_backend_api import Clerk
 from clerk_backend_api.security.types import AuthenticateRequestOptions
-from fastapi import Request
+from fastapi import Request, Security
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+bearer_auth = HTTPBearer(auto_error=False, scheme_name="BearerAuth")
 
 
 @dataclass(frozen=True)
@@ -46,6 +49,9 @@ class ClerkRequestAuthenticator:
         return AuthenticatedBuyer(clerk_user_id=subject)
 
 
-async def require_buyer(request: Request) -> AuthenticatedBuyer:
+async def require_buyer(
+    request: Request,
+    _credentials: Annotated[HTTPAuthorizationCredentials | None, Security(bearer_auth)],
+) -> AuthenticatedBuyer:
     authenticator = cast(RequestAuthenticator, request.app.state.authenticator)
     return await authenticator.authenticate(request)

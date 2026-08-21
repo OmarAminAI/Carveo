@@ -1,6 +1,98 @@
 {
   "components": {
     "schemas": {
+      "AnonymousWorkspaceMergeRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "comparisonListingIds": {
+            "items": {
+              "maxLength": 160,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 4,
+            "title": "Comparisonlistingids",
+            "type": "array"
+          },
+          "conversations": {
+            "items": {
+              "$ref": "#/components/schemas/ConversationCreate"
+            },
+            "title": "Conversations",
+            "type": "array"
+          },
+          "savedSearches": {
+            "items": {
+              "$ref": "#/components/schemas/SavedSearchUpsert"
+            },
+            "title": "Savedsearches",
+            "type": "array"
+          },
+          "shortlistListingIds": {
+            "items": {
+              "maxLength": 160,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Shortlistlistingids",
+            "type": "array"
+          }
+        },
+        "title": "AnonymousWorkspaceMergeRequest",
+        "type": "object"
+      },
+      "BuyerWorkspace": {
+        "additionalProperties": false,
+        "properties": {
+          "anonymousMergedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anonymousmergedat"
+          },
+          "comparisonListingIds": {
+            "items": {
+              "maxLength": 160,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 4,
+            "title": "Comparisonlistingids",
+            "type": "array"
+          },
+          "conversations": {
+            "items": {
+              "$ref": "#/components/schemas/ConversationSummary"
+            },
+            "title": "Conversations",
+            "type": "array"
+          },
+          "savedSearches": {
+            "items": {
+              "$ref": "#/components/schemas/SavedSearch"
+            },
+            "title": "Savedsearches",
+            "type": "array"
+          },
+          "shortlistListingIds": {
+            "items": {
+              "maxLength": 160,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Shortlistlistingids",
+            "type": "array"
+          }
+        },
+        "title": "BuyerWorkspace",
+        "type": "object"
+      },
       "CompareRequest": {
         "properties": {
           "listingIds": {
@@ -43,6 +135,26 @@
         "title": "CompareResponse",
         "type": "object"
       },
+      "ComparisonUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "listingIds": {
+            "items": {
+              "maxLength": 160,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 4,
+            "title": "Listingids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "listingIds"
+        ],
+        "title": "ComparisonUpdate",
+        "type": "object"
+      },
       "ConditionEvidence": {
         "properties": {
           "detail": {
@@ -80,6 +192,208 @@
           "detail"
         ],
         "title": "ConditionEvidence",
+        "type": "object"
+      },
+      "Conversation": {
+        "additionalProperties": false,
+        "properties": {
+          "clientId": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Clientid",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "interpretedIntent": {
+            "additionalProperties": true,
+            "title": "Interpretedintent",
+            "type": "object"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "archived"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "turns": {
+            "items": {
+              "$ref": "#/components/schemas/ConversationTurn"
+            },
+            "title": "Turns",
+            "type": "array"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "status",
+          "updatedAt",
+          "clientId",
+          "createdAt"
+        ],
+        "title": "Conversation",
+        "type": "object"
+      },
+      "ConversationCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "clientId": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Clientid",
+            "type": "string"
+          },
+          "interpretedIntent": {
+            "additionalProperties": true,
+            "title": "Interpretedintent",
+            "type": "object"
+          },
+          "title": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "turns": {
+            "items": {
+              "$ref": "#/components/schemas/ConversationTurnCreate"
+            },
+            "title": "Turns",
+            "type": "array"
+          }
+        },
+        "required": [
+          "clientId",
+          "title"
+        ],
+        "title": "ConversationCreate",
+        "type": "object"
+      },
+      "ConversationSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "archived"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "status",
+          "updatedAt"
+        ],
+        "title": "ConversationSummary",
+        "type": "object"
+      },
+      "ConversationTurn": {
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "maxLength": 8000,
+            "minLength": 1,
+            "title": "Content",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "buyer",
+              "assistant"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "sequence": {
+            "minimum": 0.0,
+            "title": "Sequence",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "sequence",
+          "role",
+          "content",
+          "createdAt"
+        ],
+        "title": "ConversationTurn",
+        "type": "object"
+      },
+      "ConversationTurnCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "maxLength": 8000,
+            "minLength": 1,
+            "title": "Content",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "buyer",
+              "assistant"
+            ],
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "content"
+        ],
+        "title": "ConversationTurnCreate",
         "type": "object"
       },
       "DealPosition": {
@@ -517,6 +831,70 @@
         "title": "PriceObservation",
         "type": "object"
       },
+      "SavedSearch": {
+        "additionalProperties": false,
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "query": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Query",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "query",
+          "createdAt",
+          "updatedAt"
+        ],
+        "title": "SavedSearch",
+        "type": "object"
+      },
+      "SavedSearchUpsert": {
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "query": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "query"
+        ],
+        "title": "SavedSearchUpsert",
+        "type": "object"
+      },
       "SourceAttribution": {
         "properties": {
           "listingUrl": {
@@ -583,6 +961,39 @@
         ],
         "title": "ValidationError",
         "type": "object"
+      },
+      "WorkspaceMergeResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "ignoredListingIds": {
+            "items": {
+              "maxLength": 160,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Ignoredlistingids",
+            "type": "array"
+          },
+          "merged": {
+            "title": "Merged",
+            "type": "boolean"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/BuyerWorkspace"
+          }
+        },
+        "required": [
+          "workspace",
+          "merged"
+        ],
+        "title": "WorkspaceMergeResponse",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "scheme": "bearer",
+        "type": "http"
       }
     }
   },
@@ -1009,6 +1420,511 @@
         "summary": "Markets",
         "tags": [
           "catalogue"
+        ]
+      }
+    },
+    "/api/v1/me/comparison": {
+      "put": {
+        "operationId": "replace_comparison_api_v1_me_comparison_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComparisonUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuyerWorkspace"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Replace Comparison",
+        "tags": [
+          "buyer"
+        ]
+      }
+    },
+    "/api/v1/me/conversations": {
+      "get": {
+        "operationId": "conversations_api_v1_me_conversations_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConversationSummary"
+                  },
+                  "title": "Response Conversations Api V1 Me Conversations Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Conversations",
+        "tags": [
+          "buyer"
+        ]
+      },
+      "post": {
+        "operationId": "create_conversation_api_v1_me_conversations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Conversation"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Create Conversation",
+        "tags": [
+          "buyer"
+        ]
+      }
+    },
+    "/api/v1/me/conversations/{conversation_id}": {
+      "get": {
+        "operationId": "conversation_detail_api_v1_me_conversations__conversation_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Conversation"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Conversation Detail",
+        "tags": [
+          "buyer"
+        ]
+      }
+    },
+    "/api/v1/me/conversations/{conversation_id}/turns": {
+      "post": {
+        "operationId": "append_turn_api_v1_me_conversations__conversation_id__turns_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationTurnCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Conversation"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Append Turn",
+        "tags": [
+          "buyer"
+        ]
+      }
+    },
+    "/api/v1/me/saved-searches": {
+      "get": {
+        "operationId": "saved_searches_api_v1_me_saved_searches_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SavedSearch"
+                  },
+                  "title": "Response Saved Searches Api V1 Me Saved Searches Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Saved Searches",
+        "tags": [
+          "buyer"
+        ]
+      },
+      "post": {
+        "operationId": "upsert_saved_search_api_v1_me_saved_searches_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavedSearchUpsert"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedSearch"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Upsert Saved Search",
+        "tags": [
+          "buyer"
+        ]
+      }
+    },
+    "/api/v1/me/saved-searches/{saved_search_id}": {
+      "delete": {
+        "operationId": "delete_saved_search_api_v1_me_saved_searches__saved_search_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "saved_search_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Saved Search Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Delete Saved Search",
+        "tags": [
+          "buyer"
+        ]
+      }
+    },
+    "/api/v1/me/shortlist/{listing_id}": {
+      "delete": {
+        "operationId": "remove_shortlist_api_v1_me_shortlist__listing_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "listing_id",
+            "required": true,
+            "schema": {
+              "title": "Listing Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuyerWorkspace"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Remove Shortlist",
+        "tags": [
+          "buyer"
+        ]
+      },
+      "put": {
+        "operationId": "add_shortlist_api_v1_me_shortlist__listing_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "listing_id",
+            "required": true,
+            "schema": {
+              "title": "Listing Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuyerWorkspace"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Add Shortlist",
+        "tags": [
+          "buyer"
+        ]
+      }
+    },
+    "/api/v1/me/workspace": {
+      "get": {
+        "operationId": "workspace_api_v1_me_workspace_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuyerWorkspace"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Workspace",
+        "tags": [
+          "buyer"
+        ]
+      }
+    },
+    "/api/v1/me/workspace/merge": {
+      "post": {
+        "operationId": "merge_workspace_api_v1_me_workspace_merge_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnonymousWorkspaceMergeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceMergeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Merge Workspace",
+        "tags": [
+          "buyer"
         ]
       }
     },

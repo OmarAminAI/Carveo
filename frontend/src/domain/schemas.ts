@@ -91,11 +91,73 @@ export type SearchIntent = Partial<Omit<ListingQuery, "market" | "sort" | "page"
   conditionPreferences?: string[];
 };
 
-export type AssistantTurn = {
-  id: string;
-  role: "buyer" | "assistant";
-  content: string;
-};
+export const assistantTurnSchema = z.object({
+  id: z.string(),
+  role: z.enum(["buyer", "assistant"]),
+  content: z.string(),
+});
+export type AssistantTurn = z.infer<typeof assistantTurnSchema>;
+
+export const savedSearchSchema = z.object({
+  id: z.string().uuid(),
+  label: z.string(),
+  query: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type SavedSearch = z.infer<typeof savedSearchSchema>;
+
+export const conversationTurnSchema = z.object({
+  id: z.string().uuid(),
+  sequence: z.number().int().nonnegative(),
+  role: z.enum(["buyer", "assistant"]),
+  content: z.string(),
+  createdAt: z.string(),
+});
+export type ConversationTurn = z.infer<typeof conversationTurnSchema>;
+
+export const conversationSummarySchema = z.object({
+  id: z.string().uuid(),
+  title: z.string(),
+  status: z.enum(["active", "archived"]),
+  updatedAt: z.string(),
+});
+export type ConversationSummary = z.infer<typeof conversationSummarySchema>;
+
+export const conversationSchema = conversationSummarySchema.extend({
+  clientId: z.string(),
+  interpretedIntent: z.record(z.string(), z.unknown()),
+  createdAt: z.string(),
+  turns: z.array(conversationTurnSchema),
+});
+export type Conversation = z.infer<typeof conversationSchema>;
+
+export const buyerWorkspaceSchema = z.object({
+  shortlistListingIds: z.array(z.string()),
+  comparisonListingIds: z.array(z.string()).max(4),
+  savedSearches: z.array(savedSearchSchema),
+  conversations: z.array(conversationSummarySchema),
+  anonymousMergedAt: z.string().nullable(),
+});
+export type BuyerWorkspace = z.infer<typeof buyerWorkspaceSchema>;
+
+export const workspaceMergeResponseSchema = z.object({
+  workspace: buyerWorkspaceSchema,
+  merged: z.boolean(),
+  ignoredListingIds: z.array(z.string()),
+});
+export type WorkspaceMergeResponse = z.infer<typeof workspaceMergeResponseSchema>;
+
+export const anonymousConversationSchema = z.object({
+  clientId: z.string().min(1),
+  title: z.string().min(1),
+  status: z.enum(["active", "archived"]),
+  interpretedIntent: z.record(z.string(), z.unknown()),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  turns: z.array(assistantTurnSchema),
+});
+export type AnonymousConversation = z.infer<typeof anonymousConversationSchema>;
 
 export type ModelMarketSummary = {
   make: string;
@@ -112,11 +174,12 @@ export type ModelMarketSummary = {
 export type ComparisonSelection = { listingIds: string[]; max: 4 };
 
 export type BrowserProfile = {
-  version: 1;
+  version: 2;
   id: string;
   shortlistIds: string[];
   compareIds: string[];
   recentViewIds: string[];
   savedSearchDrafts: Array<{ id: string; label: string; query: string; savedAt: string }>;
   assistantDraft: string;
+  anonymousConversations: AnonymousConversation[];
 };
