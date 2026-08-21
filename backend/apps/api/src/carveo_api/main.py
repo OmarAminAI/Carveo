@@ -140,7 +140,7 @@ def create_app(
 
     async def authentication_unavailable_problem(request: Request, exc: Exception) -> JSONResponse:
         assert isinstance(exc, AuthenticationUnavailableError)
-        logging.getLogger("carveo.api").exception("authentication verification failed")
+        logging.getLogger("carveo.api").error("authentication verification failed")
         return problem(
             status=503,
             slug="authentication-unavailable",

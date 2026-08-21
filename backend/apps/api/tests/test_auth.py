@@ -127,6 +127,26 @@ async def test_authentication_unavailable_is_sanitized_and_does_not_affect_readi
     assert readiness.json() == {"status": "ready"}
 
 
+@pytest.mark.anyio
+async def test_authentication_unavailable_log_does_not_include_sdk_exception_details(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    secret_error = "clerk-sdk-secret-token"
+    authenticator = ClerkRequestAuthenticator("sk_test_123", ["http://localhost:3000"])
+    authenticator._clerk = FakeClerkClient(RuntimeError(secret_error))
+    app = create_app(authenticator=authenticator, readiness_check=lambda: ready())
+
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as test_client:
+        response = await test_client.get("/api/v1/me/workspace")
+
+    log_output = capsys.readouterr().out
+
+    assert response.status_code == 503
+    assert "authentication verification failed" in log_output
+    assert secret_error not in log_output
+    assert "Traceback" not in log_output
+
+
 def test_production_requires_explicit_clerk_authorized_parties_and_a_verification_key() -> None:
     settings = {
         "environment": "production",
