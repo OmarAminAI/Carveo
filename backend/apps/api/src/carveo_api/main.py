@@ -27,6 +27,14 @@ from sqlalchemy.exc import SQLAlchemyError
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import JSONResponse, Response
 
+from carveo_api.auth import (
+    AuthenticatedBuyer,
+    AuthenticationError,
+    AuthenticationUnavailableError,
+    ClerkRequestAuthenticator,
+    RequestAuthenticator,
+    require_buyer,
+)
 from carveo_api.logging import configure_logging
 from carveo_api.problems import problem, validation_problem
 from carveo_api.settings import get_settings
@@ -91,11 +99,19 @@ def listing_query(
 
 
 def create_app(
-    *, repository: CatalogueRepository | None = None, readiness_check: ReadinessCheck | None = None
+    *,
+    repository: CatalogueRepository | None = None,
+    readiness_check: ReadinessCheck | None = None,
+    authenticator: RequestAuthenticator | None = None,
 ) -> FastAPI:
     settings = get_settings()
     configure_logging(settings.log_level)
     app = FastAPI(title="Carveo Catalogue API", version="1.0.0")
+    app.state.authenticator = authenticator or ClerkRequestAuthenticator(
+        settings.clerk_secret_key,
+        settings.clerk_authorized_parties,
+        settings.clerk_jwt_key,
+    )
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -109,6 +125,31 @@ def create_app(
         return await validation_problem(request, exc)
 
     app.add_exception_handler(RequestValidationError, request_validation_problem)
+
+    async def authentication_problem(request: Request, exc: Exception) -> JSONResponse:
+        assert isinstance(exc, AuthenticationError)
+        return problem(
+            status=401,
+            slug="authentication-required",
+            title="Authentication required",
+            detail="A valid buyer session is required.",
+            instance=request.url.path,
+        )
+
+    app.add_exception_handler(AuthenticationError, authentication_problem)
+
+    async def authentication_unavailable_problem(request: Request, exc: Exception) -> JSONResponse:
+        assert isinstance(exc, AuthenticationUnavailableError)
+        logging.getLogger("carveo.api").exception("authentication verification failed")
+        return problem(
+            status=503,
+            slug="authentication-unavailable",
+            title="Authentication unavailable",
+            detail="Authentication could not be verified.",
+            instance=request.url.path,
+        )
+
+    app.add_exception_handler(AuthenticationUnavailableError, authentication_unavailable_problem)
 
     async def database_problem(request: Request, exc: Exception) -> JSONResponse:
         assert isinstance(exc, SQLAlchemyError)
@@ -203,6 +244,10 @@ def create_app(
                 instance=request.url.path,
             )
         return {"status": "ready"}
+
+    @app.get("/api/v1/me/workspace", include_in_schema=False)
+    async def workspace(buyer: AuthenticatedBuyer = Depends(require_buyer)) -> dict[str, str]:
+        return {"clerkUserId": buyer.clerk_user_id}
 
     @app.get("/api/v1/markets", response_model=list[Market], tags=["catalogue"])
     async def markets() -> list[Market]:

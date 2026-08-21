@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     environment: Literal["development", "test", "production"] = "development"
     database_url: str = "postgresql+psycopg://carveo:carveo@localhost:5432/carveo"
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])
+    clerk_secret_key: str | None = None
+    clerk_jwt_key: str | None = None
+    clerk_authorized_parties: list[str] = Field(default_factory=list)
     log_level: str = "INFO"
 
     @model_validator(mode="after")
@@ -20,6 +23,10 @@ class Settings(BaseSettings):
                 raise ValueError("Production DATABASE_URL must not use development credentials")
             if "*" in self.cors_origins:
                 raise ValueError("Production CORS origins must be explicit")
+            if not self.clerk_authorized_parties:
+                raise ValueError("Production CLERK_AUTHORIZED_PARTIES must not be empty")
+            if not self.clerk_secret_key and not self.clerk_jwt_key:
+                raise ValueError("Production requires CLERK_SECRET_KEY or CLERK_JWT_KEY")
         return self
 
 
