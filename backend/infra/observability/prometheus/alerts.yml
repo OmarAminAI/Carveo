@@ -1,0 +1,51 @@
+groups:
+  - name: carveo-health
+    rules:
+      - alert: CarveoPrometheusTargetDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus cannot scrape {{ $labels.job }}"
+          description: "Target {{ $labels.instance }} has been unavailable for at least one minute."
+
+      - alert: CarveoBlackboxProbeFailed
+        expr: probe_success == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Carveo endpoint probe failed"
+          description: "Blackbox probe for {{ $labels.instance }} has failed for at least one minute."
+
+      - alert: CarveoBeatStale
+        expr: time() - carveo_beat_last_tick_timestamp_seconds > 90
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Carveo Beat has stopped advancing"
+          description: "The scheduler has not completed a health cycle within 90 seconds."
+
+      - alert: CarveoHealthTargetFailed
+        expr: carveo_health_target_up == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Carveo health target {{ $labels.target }} is unavailable"
+          description: "Beat has observed a failing target for at least one minute."
+
+      - alert: CarveoApiHighErrorRate
+        expr: |
+          sum(rate(carveo_api_http_requests_total{status=~"5.."}[5m]))
+          /
+          clamp_min(sum(rate(carveo_api_http_requests_total[5m])), 0.001)
+          > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Carveo API error rate is elevated"
+          description: "More than five percent of API requests have returned 5xx responses for five minutes."

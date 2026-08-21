@@ -7,8 +7,9 @@ Carveo is a UAE used-car discovery platform with direct catalogue search, transp
 - `frontend/`: Next.js 16 and React 19 application managed exclusively with Bun.
 - `backend/apps/api/`: FastAPI request service and Alembic migrations.
 - `backend/packages/carveo-core/`: shared catalogue contracts, SQLAlchemy models, repositories, valuation, and fixture seeding.
-- `backend/workers/ingestion/`: Redis-backed Dramatiq worker foundation.
-- `backend/docker-compose.yml`: integrated PostgreSQL, Redis, API, worker, and web environment.
+- `backend/workers/ingestion/`: Redis-backed Dramatiq worker and APScheduler Beat health monitor.
+- `backend/infra/observability/`: Prometheus, Blackbox Exporter, and provisioned Grafana configuration.
+- `backend/docker-compose.yml`: integrated application, crawler, scheduler, persistence, and observability environment.
 
 ## Run Everything
 
@@ -24,12 +25,15 @@ docker compose ps
 - API documentation: [http://localhost:8000/docs](http://localhost:8000/docs)
 - API liveness: [http://localhost:8000/health](http://localhost:8000/health)
 - Integrated web readiness: [http://localhost:3000/api/ready](http://localhost:3000/api/ready)
+- Crawl4AI diagnostics: [http://localhost:11235/health](http://localhost:11235/health)
+- Prometheus: [http://localhost:9090](http://localhost:9090)
+- Grafana: [http://localhost:3001](http://localhost:3001)
 
 Follow operational logs with:
 
 ```powershell
 cd backend
-docker compose logs -f api worker web
+docker compose logs -f api worker beat crawl4ai prometheus grafana web
 ```
 
 Stop the stack without deleting database volumes:
@@ -76,3 +80,5 @@ Database schema changes belong exclusively to Alembic. The API container upgrade
 ## Data Boundary
 
 The running catalogue contains approved development fixture records. Live marketplace crawling remains disabled until a source has documented authorization or licensed access. Missing accident, service, or condition evidence remains unknown.
+
+The Crawl4AI container is an idle, authenticated development dependency in this milestone. No adapter calls it yet. Prometheus collects application and infrastructure metrics, while Grafana provisions the `Carveo Operations` dashboard from version-controlled files.

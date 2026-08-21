@@ -33,6 +33,19 @@ async def test_health_and_readiness_are_distinct(client: httpx.AsyncClient) -> N
 
 
 @pytest.mark.anyio
+async def test_metrics_are_scrapeable_without_expanding_the_public_contract(client: httpx.AsyncClient) -> None:
+    await client.get("/health")
+
+    metrics = await client.get("/metrics")
+    schema = await client.get("/openapi.json")
+
+    assert metrics.status_code == 200
+    assert metrics.headers["content-type"].startswith("text/plain")
+    assert "carveo_api_http_requests_total" in metrics.text
+    assert "/metrics" not in schema.json()["paths"]
+
+
+@pytest.mark.anyio
 async def test_repeated_filters_use_camel_case_contract(client: httpx.AsyncClient) -> None:
     response = await client.get(
         "/api/v1/listings",

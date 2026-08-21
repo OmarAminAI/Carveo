@@ -21,6 +21,7 @@ services:
       timeout: 5s
       retries: 12
     logging: *default-logging
+    restart: unless-stopped
 
   redis:
     image: redis:8-alpine
@@ -33,6 +34,7 @@ services:
       timeout: 3s
       retries: 12
     logging: *default-logging
+    restart: unless-stopped
 
   api:
     build:
@@ -53,6 +55,7 @@ services:
       timeout: 3s
       retries: 12
     logging: *default-logging
+    restart: unless-stopped
 
   worker:
     build:
@@ -60,6 +63,12 @@ services:
       dockerfile: workers/ingestion/Dockerfile
     environment:
       CARVEO_REDIS_URL: ${CARVEO_REDIS_URL:-redis://redis:6379/0}
+      CARVEO_LOG_LEVEL: ${CARVEO_LOG_LEVEL:-INFO}
+      dramatiq_prom_db: /tmp/dramatiq-prometheus
+      dramatiq_prom_host: 0.0.0.0
+      dramatiq_prom_port: "9191"
+    expose:
+      - "9191"
     depends_on:
       redis:
         condition: service_healthy
@@ -69,6 +78,203 @@ services:
       timeout: 5s
       retries: 6
     logging: *default-logging
+    restart: unless-stopped
+
+  beat:
+    build:
+      context: .
+      dockerfile: workers/ingestion/Dockerfile
+    command: ["uv", "run", "--frozen", "--package", "carveo-worker", "python", "-m", "carveo_worker.beat"]
+    environment:
+      CARVEO_REDIS_URL: ${CARVEO_REDIS_URL:-redis://redis:6379/0}
+      CARVEO_DATABASE_URL: ${CARVEO_DATABASE_URL:-postgresql+psycopg://carveo:carveo@postgres:5432/carveo}
+      CARVEO_API_READY_URL: http://api:8000/ready
+      CARVEO_WEB_READY_URL: http://web:3000/api/ready
+      CARVEO_CRAWL4AI_HEALTH_URL: http://crawl4ai:11235/health
+      CARVEO_PROMETHEUS_READY_URL: http://prometheus:9090/-/ready
+      CARVEO_GRAFANA_HEALTH_URL: http://grafana:3000/api/health
+      CARVEO_BEAT_INTERVAL_SECONDS: ${CARVEO_BEAT_INTERVAL_SECONDS:-30}
+      CARVEO_BEAT_HEARTBEAT_TTL_SECONDS: ${CARVEO_BEAT_HEARTBEAT_TTL_SECONDS:-90}
+      CARVEO_BEAT_METRICS_PORT: "9108"
+      CARVEO_LOG_LEVEL: ${CARVEO_LOG_LEVEL:-INFO}
+    expose:
+      - "9108"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      worker:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "uv", "run", "--frozen", "--package", "carveo-worker", "python", "-m", "carveo_worker.beat_health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    logging: *default-logging
+    restart: unless-stopped
+
+  crawl4ai:
+    image: unclecode/crawl4ai:0.9.2
+    environment:
+      CRAWL4AI_API_TOKEN: ${CRAWL4AI_API_TOKEN:-carveo-local-crawl4ai-token}
+      SECRET_KEY: ${CRAWL4AI_SECRET_KEY:-carveo-local-crawl4ai-secret-key}
+      REDIS_PASSWORD: ${CRAWL4AI_REDIS_PASSWORD:-carveo-local-crawl4ai-redis}
+    ports:
+      - "127.0.0.1:11235:11235"
+    shm_size: "1gb"
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/lib/redis:uid=999,gid=999,mode=0700
+      - /var/lib/crawl4ai/outputs:uid=999,gid=999,mode=0700
+      - /home/appuser/.crawl4ai:uid=999,gid=999,mode=0700
+      - /home/appuser/.cache/url_seeder:uid=999,gid=999,mode=0700
+      - /home/appuser/.gunicorn:uid=999,gid=999,mode=0700
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11235/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          pids: 512
+        reservations:
+          memory: 1G
+    logging: *default-logging
+    restart: unless-stopped
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.20.1
+    environment:
+      DATA_SOURCE_NAME: ${POSTGRES_EXPORTER_DSN:-postgresql://carveo:carveo@postgres:5432/carveo?sslmode=disable}
+    expose:
+      - "9187"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/bin/postgres_exporter", "--version"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging: *default-logging
+    restart: unless-stopped
+
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.77.0-alpine
+    environment:
+      REDIS_ADDR: ${CARVEO_REDIS_URL:-redis://redis:6379/0}
+    expose:
+      - "9121"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/redis_exporter", "--version"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging: *default-logging
+    restart: unless-stopped
+
+  blackbox-exporter:
+    image: quay.io/prometheus/blackbox-exporter:v0.28.0
+    command: ["--config.file=/etc/blackbox/blackbox.yml"]
+    volumes:
+      - ./infra/observability/blackbox/blackbox.yml:/etc/blackbox/blackbox.yml:ro
+    expose:
+      - "9115"
+    healthcheck:
+      test: ["CMD", "/bin/blackbox_exporter", "--version"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging: *default-logging
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.13.1
+    environment:
+      CRAWL4AI_API_TOKEN: ${CRAWL4AI_API_TOKEN:-carveo-local-crawl4ai-token}
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - |
+        umask 077
+        printf '%s' "$${CRAWL4AI_API_TOKEN}" > /tmp/crawl4ai-token
+        exec /bin/prometheus \
+          --config.file=/etc/prometheus/prometheus.yml \
+          --storage.tsdb.path=/prometheus \
+          --storage.tsdb.retention.time=7d \
+          --web.enable-lifecycle
+    volumes:
+      - ./infra/observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infra/observability/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    depends_on:
+      blackbox-exporter:
+        condition: service_healthy
+      postgres-exporter:
+        condition: service_healthy
+      redis-exporter:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    logging: *default-logging
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:13.1.0
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-carveo-local-grafana}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_PLUGINS_PREINSTALL_DISABLED: "true"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./infra/observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infra/observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "127.0.0.1:3001:3000"
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    logging: *default-logging
+    restart: unless-stopped
 
   web:
     build:
@@ -89,7 +295,10 @@ services:
       timeout: 5s
       retries: 8
     logging: *default-logging
+    restart: unless-stopped
 
 volumes:
   postgres-data:
   redis-data:
+  prometheus-data:
+  grafana-data:

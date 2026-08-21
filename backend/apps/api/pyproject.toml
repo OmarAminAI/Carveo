@@ -6,6 +6,7 @@ dependencies = [
   "alembic>=1.16,<2",
   "carveo-core",
   "fastapi>=0.141,<0.142",
+  "prometheus-client>=0.22,<1",
   "pydantic-settings>=2.10,<3",
   "python-json-logger>=3.3,<4",
   "uvicorn[standard]>=0.35,<1",

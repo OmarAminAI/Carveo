@@ -20,6 +20,7 @@ from carveo_core.sql_repository import SqlAlchemyCatalogueRepository
 from fastapi import Depends, FastAPI, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
 from pydantic import ValidationError
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
@@ -31,6 +32,17 @@ from carveo_api.problems import problem, validation_problem
 from carveo_api.settings import get_settings
 
 ReadinessCheck = Callable[[], Awaitable[bool]]
+
+REQUESTS = Counter(
+    "carveo_api_http_requests_total",
+    "Total HTTP requests handled by the Carveo API.",
+    ("method", "route", "status"),
+)
+REQUEST_DURATION = Histogram(
+    "carveo_api_http_request_duration_seconds",
+    "Carveo API request duration in seconds.",
+    ("method", "route"),
+)
 
 
 def listing_query(
@@ -154,6 +166,11 @@ def create_app(
         request_id_value = request.headers.get("X-Request-ID", str(uuid.uuid4()))
         started_at = time.perf_counter()
         response = await call_next(request)
+        route = request.scope.get("route")
+        route_path = getattr(route, "path", "unmatched")
+        if request.url.path != "/metrics":
+            REQUESTS.labels(request.method, route_path, str(response.status_code)).inc()
+            REQUEST_DURATION.labels(request.method, route_path).observe(time.perf_counter() - started_at)
         response.headers["X-Request-ID"] = request_id_value
         logging.getLogger("carveo.request").info(
             "request complete",
@@ -166,6 +183,10 @@ def create_app(
             },
         )
         return response
+
+    @app.get("/metrics", include_in_schema=False)
+    async def metrics() -> Response:
+        return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
     @app.get("/health", tags=["operations"])
     async def health() -> dict[str, str]:

@@ -3,6 +3,7 @@ import os
 import dramatiq
 from dramatiq.brokers.redis import RedisBroker
 from dramatiq.middleware import AgeLimit, AsyncIO, Retries
+from dramatiq.middleware.prometheus import Prometheus
 
 
 def build_broker() -> RedisBroker:
@@ -11,6 +12,7 @@ def build_broker() -> RedisBroker:
         middleware=[
             AgeLimit(max_age=300_000),
             AsyncIO(),
+            Prometheus(),
             Retries(max_retries=3, min_backoff=1_000, max_backoff=30_000),
         ],
     )

@@ -1,4 +1,5 @@
 import dramatiq
+from carveo_worker import tasks
 from carveo_worker.tasks import configure_worker_broker, smoke
 from dramatiq.brokers.stub import StubBroker
 from dramatiq.middleware import AsyncIO, Retries
@@ -14,7 +15,30 @@ def test_smoke_actor_enqueues_json_safe_message() -> None:
     assert message.args == ("probe-123",)
     assert smoke.options["max_retries"] == 3
     assert smoke.options["max_age"] == 300_000
-    assert broker.get_declared_queues() == {"ingestion", "ingestion.DQ"}
+    assert broker.get_declared_queues() == {
+        "ingestion",
+        "ingestion.DQ",
+        "operations",
+        "operations.DQ",
+    }
+    dramatiq.set_broker(broker)
+
+
+def test_worker_heartbeat_uses_the_operations_queue() -> None:
+    assert hasattr(tasks, "heartbeat")
+
+    broker = StubBroker()
+    configure_worker_broker(broker)
+    message = tasks.heartbeat.send("probe-123")
+
+    assert message.args == ("probe-123",)
+    assert message.queue_name == "operations"
+    assert broker.get_declared_queues() == {
+        "ingestion",
+        "ingestion.DQ",
+        "operations",
+        "operations.DQ",
+    }
     dramatiq.set_broker(broker)
 
 

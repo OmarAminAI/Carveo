@@ -81,10 +81,17 @@ Docker Compose in `backend/` is the integrated runtime authority:
 | `postgres` | Catalogue persistence | Internal only | `pg_isready` |
 | `redis` | Dramatiq broker | Internal only | `redis-cli ping` |
 | `api` | FastAPI catalogue service | `8000` | PostgreSQL `SELECT 1` through `/ready` |
-| `worker` | Dramatiq worker shell | Internal only | Redis broker health probe |
+| `worker` | Dramatiq ingestion and operations queues | Internal only | Redis broker health probe |
+| `beat` | APScheduler health monitor and worker heartbeat | Internal only | Fresh Redis Beat timestamp |
+| `crawl4ai` | Authenticated idle crawler server | `11235` on localhost | Native `/health` probe |
+| `prometheus` | Metrics scraping, storage, and alert rules | `9090` on localhost | Native `/-/ready` probe |
+| `grafana` | Provisioned operations dashboard | `3001` on localhost | Native `/api/health` probe |
+| `blackbox-exporter` | Independent HTTP target probes | Internal only | Exporter binary check |
+| `postgres-exporter` | PostgreSQL operational metrics | Internal only | Exporter binary check |
+| `redis-exporter` | Redis operational metrics | Internal only | Exporter binary check |
 | `web` | Next.js marketplace | `3000` | API readiness through `/api/ready` |
 
-All containers use bounded JSON-file log rotation. The API container migrates and seeds the approved fixture catalogue before Uvicorn starts.
+All containers use bounded JSON-file log rotation. The API container migrates and seeds the approved fixture catalogue before Uvicorn starts. Beat probes all runtime dependencies every 30 seconds, while Prometheus independently scrapes application metrics, exporters, and Blackbox HTTP probes.
 
 The frontend consumes a `CatalogueRepository` contract. Integrated development selects the API implementation; isolated frontend tests can select the fixture implementation. Keep both implementations domain-compatible.
 
@@ -157,6 +164,15 @@ Use local `.env` files or deployment secret stores. Commit only `.env.example` t
 | `CARVEO_API_INTERNAL_URL` | Web server | Container/internal API base URL |
 | `NEXT_PUBLIC_CARVEO_API_URL` | Browser | Public API base URL |
 | `CARVEO_ENVIRONMENT` | API | Development, test, or production mode |
+| `CARVEO_LOG_LEVEL` | API/worker/Beat | Structured log threshold |
+| `CARVEO_BEAT_INTERVAL_SECONDS` | Beat | Health sweep interval |
+| `CARVEO_BEAT_HEARTBEAT_TTL_SECONDS` | Beat | Scheduler freshness deadline |
+| `CRAWL4AI_API_TOKEN` | Crawl4AI/Prometheus | Internal crawler authentication; secret outside local defaults |
+| `CRAWL4AI_SECRET_KEY` | Crawl4AI | Signing key; use a random value outside local development |
+| `CRAWL4AI_REDIS_PASSWORD` | Crawl4AI | Password for Crawl4AI's private in-container Redis process |
+| `POSTGRES_EXPORTER_DSN` | PostgreSQL exporter | Metrics-only database connection URL |
+| `GRAFANA_ADMIN_USER` | Grafana | Local administrator name |
+| `GRAFANA_ADMIN_PASSWORD` | Grafana | Local administrator password; secret outside local defaults |
 
 Production must reject missing secrets and unsafe wildcard CORS. Never expose a database URL, Redis URL, PAT, API key, or private key through a `NEXT_PUBLIC_*` variable.
 
@@ -216,7 +232,7 @@ git diff --cached
 cd backend
 docker compose up --build -d
 docker compose ps
-docker compose logs -f api worker web
+docker compose logs -f api worker beat crawl4ai prometheus grafana web
 ```
 
 Open:
@@ -226,6 +242,9 @@ Open:
 - API liveness: `http://localhost:8000/health`
 - API readiness: `http://localhost:8000/ready`
 - Integrated web readiness: `http://localhost:3000/api/ready`
+- Crawl4AI health: `http://localhost:11235/health`
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3001`
 
 Stop containers without deleting persistent volumes:
 
@@ -372,13 +391,17 @@ Implemented foundation:
 - FastAPI catalogue endpoints and readiness handling
 - OpenAPI-to-TypeScript contract generation
 - Redis/Dramatiq worker shell and health probe
-- Docker Compose integration for database, queue, API, worker, and web
+- APScheduler Beat with end-to-end service and worker health probes
+- Authenticated idle Crawl4AI 0.9.2 container
+- Prometheus, Blackbox, PostgreSQL, and Redis exporters
+- Provisioned Grafana `Carveo Operations` dashboard
+- Docker Compose integration for application, crawler, scheduler, persistence, and observability services
 
 Intentionally deferred:
 
 - Accounts and authentication
 - Alerts and cross-device profiles
-- Live Crawl4AI source adapters
+- Crawl4AI source adapters and crawl execution
 - Unapproved marketplace ingestion
 - Object storage
 - Dedicated search engine

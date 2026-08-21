@@ -18,10 +18,10 @@
     "semantic_hash": "0fc1da506423720fb9f6d0fab8c28112"
   },
   "backend/apps/api/pyproject.toml": {
-    "mtime": 1787240894.5098493,
-    "seen": 1787257344.3151362,
-    "ast_hash": "a6a95483aeada01c0310e468aacceb2a",
-    "semantic_hash": "a6a95483aeada01c0310e468aacceb2a"
+    "mtime": 1787272489.9855156,
+    "seen": 1787274954.163605,
+    "ast_hash": "1d951f8570448038ff9ab5bb22046634",
+    "semantic_hash": ""
   },
   "backend/apps/api/src/carveo_api/__init__.py": {
     "mtime": 1787240900.9785535,
@@ -42,10 +42,10 @@
     "semantic_hash": "178eb288ec938db648b0dbaff8584473"
   },
   "backend/apps/api/src/carveo_api/main.py": {
-    "mtime": 1787253011.1190295,
-    "seen": 1787257344.3151362,
-    "ast_hash": "0f63db301947202b3d19d8acacac334d",
-    "semantic_hash": "0f63db301947202b3d19d8acacac334d"
+    "mtime": 1787273170.7985272,
+    "seen": 1787274954.163605,
+    "ast_hash": "a6bd2ddd0bd053fc518508670042fb7c",
+    "semantic_hash": ""
   },
   "backend/apps/api/src/carveo_api/problems.py": {
     "mtime": 1787241529.6306655,
@@ -72,10 +72,10 @@
     "semantic_hash": "d8c899112615b60ef358f95fe80ffbf5"
   },
   "backend/apps/api/tests/test_api.py": {
-    "mtime": 1787253012.2737393,
-    "seen": 1787257344.3151362,
-    "ast_hash": "c5d8ce1e409625c0890a8d8de0c27823",
-    "semantic_hash": "c5d8ce1e409625c0890a8d8de0c27823"
+    "mtime": 1787272424.8514888,
+    "seen": 1787274954.163605,
+    "ast_hash": "d5ee68fe6e1d56e4cb067aed51cf03e4",
+    "semantic_hash": ""
   },
   "backend/apps/api/tests/test_contract.py": {
     "mtime": 1787241750.9966333,
@@ -192,10 +192,10 @@
     "semantic_hash": "1177f38435d1b5ff6ef11a53ae6e23f3"
   },
   "backend/workers/ingestion/pyproject.toml": {
-    "mtime": 1787241082.2955563,
-    "seen": 1787257344.3151362,
-    "ast_hash": "37e62435d5b98bad0f232dfbcb5f6f59",
-    "semantic_hash": "37e62435d5b98bad0f232dfbcb5f6f59"
+    "mtime": 1787272834.6378236,
+    "seen": 1787274954.163605,
+    "ast_hash": "9aaad65e36f0ba3ce18a9aff99e1a9e3",
+    "semantic_hash": ""
   },
   "backend/workers/ingestion/src/carveo_worker/__init__.py": {
     "mtime": 1787241087.2029188,
@@ -204,10 +204,10 @@
     "semantic_hash": "5d5c78e11f04402ab328299ac34bc26d"
   },
   "backend/workers/ingestion/src/carveo_worker/broker.py": {
-    "mtime": 1787241641.5913374,
-    "seen": 1787257344.3151362,
-    "ast_hash": "724dae2ab8defba562a006d5805e8732",
-    "semantic_hash": "724dae2ab8defba562a006d5805e8732"
+    "mtime": 1787272494.0639782,
+    "seen": 1787274954.163605,
+    "ast_hash": "5f495e894bb3053a679109c06ab74c4a",
+    "semantic_hash": ""
   },
   "backend/workers/ingestion/src/carveo_worker/health.py": {
     "mtime": 1787241090.5924926,
@@ -216,16 +216,16 @@
     "semantic_hash": "cc1e62695b03da17be705955546227a5"
   },
   "backend/workers/ingestion/src/carveo_worker/tasks.py": {
-    "mtime": 1787241140.886407,
-    "seen": 1787257344.3151362,
-    "ast_hash": "e7aebc43645cd7b0b8163b9a3824ed41",
-    "semantic_hash": "e7aebc43645cd7b0b8163b9a3824ed41"
+    "mtime": 1787272833.2216294,
+    "seen": 1787274954.163605,
+    "ast_hash": "6e630d3511d4fcbb7c9425128a470efb",
+    "semantic_hash": ""
   },
   "backend/workers/ingestion/tests/test_worker.py": {
-    "mtime": 1787242036.8104408,
-    "seen": 1787257344.3151362,
-    "ast_hash": "e40631b0db3ba76627d6381a515f3c18",
-    "semantic_hash": "e40631b0db3ba76627d6381a515f3c18"
+    "mtime": 1787272859.8110423,
+    "seen": 1787274954.163605,
+    "ast_hash": "2bf10707e42d6e3935b601d711ebba2f",
+    "semantic_hash": ""
   },
   "frontend/components.json": {
     "mtime": 1787180794.8240309,
@@ -240,10 +240,10 @@
     "semantic_hash": "776d84c1e65adeff4c3015c5fee6bff2"
   },
   "frontend/next-env.d.ts": {
-    "mtime": 1787255035.7426744,
-    "seen": 1787257344.3151362,
-    "ast_hash": "0e4a65e8b2b9aa3ed0f8957b9406bd41",
-    "semantic_hash": "0e4a65e8b2b9aa3ed0f8957b9406bd41"
+    "mtime": 1787274939.884147,
+    "seen": 1787274954.163605,
+    "ast_hash": "3e0c7ca16c742ccf914c71dc14dacc9d",
+    "semantic_hash": ""
   },
   "frontend/next.config.ts": {
     "mtime": 1787252755.292557,
@@ -804,27 +804,27 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1787254604.6564121,
-    "seen": 1787268800.5209258,
-    "ast_hash": "548b4bcf7d2d6eb30e60b23046d203ba",
+    "mtime": 1787273226.3478377,
+    "seen": 1787274954.163605,
+    "ast_hash": "ff94350526127c6c0f34af77a29db89f",
     "semantic_hash": ""
   },
   "backend/README.md": {
-    "mtime": 1787253642.077887,
-    "seen": 1787268800.5209258,
-    "ast_hash": "37a5f8b6f4be829dbf5e61284871fc92",
+    "mtime": 1787274685.7462773,
+    "seen": 1787274954.163605,
+    "ast_hash": "acef606499f86ef7a4a420c586445f0a",
     "semantic_hash": ""
   },
   "backend/docker-compose.yml": {
-    "mtime": 1787254484.008033,
-    "seen": 1787268800.5209258,
-    "ast_hash": "29358a56f8e5efa4b292fca3f5d98d96",
+    "mtime": 1787274682.8013396,
+    "seen": 1787274954.163605,
+    "ast_hash": "f75cb2b11e494aeb11fa535dd7f9543f",
     "semantic_hash": ""
   },
   "codex.md": {
-    "mtime": 1787268781.3505485,
-    "seen": 1787268800.5209258,
-    "ast_hash": "dbab1e87103ede385b136e05cfe7ae2a",
+    "mtime": 1787274687.4253414,
+    "seen": 1787274954.163605,
+    "ast_hash": "f01ab7bdbb03f354e5e5553bfc87b522",
     "semantic_hash": ""
   },
   "frontend/AGENTS.md": {
@@ -909,6 +909,78 @@
     "mtime": 1787184317.1031222,
     "seen": 1787268800.5209258,
     "ast_hash": "0df70cea5ccbb847aed52bc35c56bd02",
+    "semantic_hash": ""
+  },
+  "backend/infra/observability/grafana/dashboards/carveo-operations.json": {
+    "mtime": 1787273163.4717865,
+    "seen": 1787274954.163605,
+    "ast_hash": "db30ae03f141de15422f4b42fa64fe21",
+    "semantic_hash": ""
+  },
+  "backend/workers/ingestion/src/carveo_worker/beat.py": {
+    "mtime": 1787273161.9671974,
+    "seen": 1787274954.163605,
+    "ast_hash": "9e5d9d334c1d8c2505ad4ff5f4721ad6",
+    "semantic_hash": ""
+  },
+  "backend/workers/ingestion/src/carveo_worker/beat_health.py": {
+    "mtime": 1787272830.4144936,
+    "seen": 1787274954.163605,
+    "ast_hash": "d4c4a425c82f14d2baf3fbddb378f596",
+    "semantic_hash": ""
+  },
+  "backend/workers/ingestion/src/carveo_worker/logging.py": {
+    "mtime": 1787272831.8454723,
+    "seen": 1787274954.163605,
+    "ast_hash": "178eb288ec938db648b0dbaff8584473",
+    "semantic_hash": ""
+  },
+  "backend/workers/ingestion/src/carveo_worker/monitoring.py": {
+    "mtime": 1787273170.7964714,
+    "seen": 1787274954.163605,
+    "ast_hash": "b4a66a4514f6fe4a07987f63b904a135",
+    "semantic_hash": ""
+  },
+  "backend/workers/ingestion/tests/test_monitoring.py": {
+    "mtime": 1787273170.7959397,
+    "seen": 1787274954.163605,
+    "ast_hash": "5438520c6f2106d68e9fee85db0f9018",
+    "semantic_hash": ""
+  },
+  "backend/infra/observability/blackbox/blackbox.yml": {
+    "mtime": 1787272981.0827827,
+    "seen": 1787274954.163605,
+    "ast_hash": "1ac2ac99dd8db399b283953bc385b605",
+    "semantic_hash": ""
+  },
+  "backend/infra/observability/grafana/provisioning/dashboards/default.yml": {
+    "mtime": 1787273103.2024627,
+    "seen": 1787274954.163605,
+    "ast_hash": "1fbcf1d988a783fef344b1f08429ebbc",
+    "semantic_hash": ""
+  },
+  "backend/infra/observability/grafana/provisioning/datasources/prometheus.yml": {
+    "mtime": 1787273100.6675456,
+    "seen": 1787274954.163605,
+    "ast_hash": "93423dd4b8e91b5788aaf935be80d8c1",
+    "semantic_hash": ""
+  },
+  "backend/infra/observability/prometheus/alerts.yml": {
+    "mtime": 1787272984.9865794,
+    "seen": 1787274954.163605,
+    "ast_hash": "c24e8fea2f69d1a57f708f2048ae0417",
+    "semantic_hash": ""
+  },
+  "backend/infra/observability/prometheus/prometheus.yml": {
+    "mtime": 1787272983.5340185,
+    "seen": 1787274954.163605,
+    "ast_hash": "2fcd4acf51785aac3999e746c343cc04",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/plans/2026-08-21-observability-foundation.md": {
+    "mtime": 1787272386.2165205,
+    "seen": 1787274954.163605,
+    "ast_hash": "e4ec60a0ab2fd62baf5bbe2c4af754e3",
     "semantic_hash": ""
   }
 }
