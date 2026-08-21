@@ -40,10 +40,14 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+    env_file:
+      - path: ../frontend/.env.local
+        required: false
     environment:
       CARVEO_ENVIRONMENT: development
       CARVEO_DATABASE_URL: ${CARVEO_DATABASE_URL:-postgresql+psycopg://carveo:carveo@postgres:5432/carveo}
       CARVEO_CORS_ORIGINS: '${CARVEO_CORS_ORIGINS:-["http://localhost:3000"]}'
+      CARVEO_CLERK_AUTHORIZED_PARTIES: '${CARVEO_CLERK_AUTHORIZED_PARTIES:-["http://localhost:3000"]}'
     ports:
       - "8000:8000"
     depends_on:
@@ -280,6 +284,9 @@ services:
     build:
       context: ..
       dockerfile: frontend/Dockerfile
+    env_file:
+      - path: ../frontend/.env.local
+        required: false
     environment:
       CARVEO_CATALOGUE_SOURCE: api
       CARVEO_API_INTERNAL_URL: http://api:8000

@@ -3,6 +3,7 @@ import { Heart, Sparkles } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { MobileNavigation } from "@/components/mobile-navigation";
+import { AuthControls } from "@/components/auth-controls";
 
 export function AppHeader() {
   return (
@@ -16,6 +17,7 @@ export function AppHeader() {
         </nav>
         <div className="flex items-center gap-1">
           <Link href="/en-ae/shortlist" aria-label="Shortlist" className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "text-white")}><Heart className="size-5" /></Link>
+          <AuthControls />
           <MobileNavigation />
         </div>
       </div>

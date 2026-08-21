@@ -1,5 +1,14 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@clerk/nextjs", () => ({
+  useAuth: () => ({
+    isLoaded: true,
+    isSignedIn: false,
+    userId: null,
+    getToken: vi.fn().mockResolvedValue(null),
+  }),
+}));
 import { fixtureCatalogue } from "@/data/fixture-catalogue";
 import { VehicleCard } from "@/components/vehicle-card";
 import { ProfileProvider } from "@/profile/profile-provider";

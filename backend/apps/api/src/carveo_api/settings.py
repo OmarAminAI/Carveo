@@ -1,18 +1,24 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, model_validator
+from pydantic import AliasChoices, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="CARVEO_", env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="CARVEO_", env_file=".env", extra="ignore", populate_by_name=True)
 
     environment: Literal["development", "test", "production"] = "development"
     database_url: str = "postgresql+psycopg://carveo:carveo@localhost:5432/carveo"
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])
-    clerk_secret_key: str | None = None
-    clerk_jwt_key: str | None = None
+    clerk_secret_key: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("CARVEO_CLERK_SECRET_KEY", "CLERK_SECRET_KEY"),
+    )
+    clerk_jwt_key: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("CARVEO_CLERK_JWT_KEY", "CLERK_JWT_KEY"),
+    )
     clerk_authorized_parties: list[str] = Field(default_factory=list)
     log_level: str = "INFO"
 

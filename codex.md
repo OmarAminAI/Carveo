@@ -4,7 +4,7 @@ This document is the human-maintained operating guide for developing Carveo with
 
 ## Product Boundary
 
-Carveo is an English-first UAE used-car discovery platform. It supports direct catalogue search, conversational search refinement, transparent market-price positioning, listing detail, model intelligence, comparison, and a browser-local buyer workspace.
+Carveo is an English-first UAE used-car discovery platform. It supports direct catalogue search, conversational search refinement, transparent market-price positioning, listing detail, model intelligence, comparison, and a Clerk-authenticated buyer workspace with an anonymous browser fallback.
 
 The current catalogue uses approved development fixtures. Do not introduce live marketplace crawling, copied listing media, or claims of source authorization without a documented legal or commercial approval record. Unknown accident, service, or condition evidence must remain unknown.
 
@@ -42,6 +42,7 @@ Legacy root-level reference Markdown files are documentation only. Runtime code 
 | Language | Strict TypeScript |
 | Styling | Tailwind CSS v4 |
 | Components | shadcn composition on Base UI |
+| Authentication | Clerk Next.js SDK with Clerk UI shadcn theme |
 | Validation | Zod 4 |
 | API client | `openapi-fetch` with generated OpenAPI types |
 | Tables | TanStack Table |
@@ -105,10 +106,12 @@ The frontend consumes a `CatalogueRepository` contract. Integrated development s
 | `/en-ae/find` | Deterministic conversational search workspace |
 | `/en-ae/market/[make]/[model]` | Model market intelligence |
 | `/en-ae/compare` | Two-to-four vehicle comparison |
-| `/en-ae/shortlist` | Browser-local buyer workspace |
+| `/en-ae/shortlist` | Anonymous or Clerk-synchronized buyer workspace |
+| `/sign-in/[[...sign-in]]` | Clerk sign-in flow |
+| `/sign-up/[[...sign-up]]` | Clerk account creation flow |
 | `/api/ready` | Web-to-API integrated readiness proxy |
 
-URL search parameters are the source of truth for catalogue filters and sorting. Shortlist, compare selection, recent views, saved-search drafts, and assistant drafts remain in the versioned browser profile.
+URL search parameters are the source of truth for catalogue filters and sorting. Signed-out shortlist, comparison, saved-search drafts, and conversations remain in the versioned browser profile and merge once after sign-in. Signed-in ownership lives in PostgreSQL; recent views remain browser-local.
 
 ## Public API
 
@@ -124,6 +127,24 @@ URL search parameters are the source of truth for catalogue filters and sorting.
 | `GET /api/v1/models/{make}/{model}/insights` | Model pricing and inventory summary |
 
 Public JSON uses camelCase aliases compatible with the frontend domain. Errors use sanitized RFC 9457-style problem responses. Never expose stack traces, SQL, credentials, or internal connection details.
+
+## Protected Buyer API
+
+All routes below require a Clerk bearer token verified by FastAPI. The verified Clerk `sub` is the only buyer identity input; request bodies and query parameters never select an owner.
+
+| Method and path | Purpose |
+| --- | --- |
+| `GET /api/v1/me/workspace` | Authoritative shortlist, comparison, saved searches, conversations, and merge state |
+| `POST /api/v1/me/workspace/merge` | Idempotent first-sign-in merge of anonymous browser data |
+| `PUT/DELETE /api/v1/me/shortlist/{listingId}` | Idempotent shortlist mutation |
+| `PUT /api/v1/me/comparison` | Atomic ordered replacement of zero to four listings |
+| `GET/POST /api/v1/me/saved-searches` | List or upsert owned searches |
+| `DELETE /api/v1/me/saved-searches/{savedSearchId}` | Delete an owned saved search |
+| `GET/POST /api/v1/me/conversations` | List or create owned AI conversations |
+| `GET /api/v1/me/conversations/{conversationId}` | Read one owned conversation and ordered turns |
+| `POST /api/v1/me/conversations/{conversationId}/turns` | Append an owned conversation turn transactionally |
+
+Buyer profiles are created just in time from the verified Clerk subject. Foreign owned identifiers return 404. Clerk user-deletion webhooks and account erasure orchestration remain deferred; do not claim automatic deletion until that webhook is implemented.
 
 ## Contracts and Fixtures
 
@@ -163,6 +184,13 @@ Use local `.env` files or deployment secret stores. Commit only `.env.example` t
 | `CARVEO_CATALOGUE_SOURCE` | Web | `api` for integration or `fixture` for isolated tests |
 | `CARVEO_API_INTERNAL_URL` | Web server | Container/internal API base URL |
 | `NEXT_PUBLIC_CARVEO_API_URL` | Browser | Public API base URL |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Web/browser | Clerk development or production publishable key |
+| `CLERK_SECRET_KEY` | Web server/API | Clerk server credential injected at runtime; never expose through a public variable or image layer |
+| `CARVEO_CLERK_SECRET_KEY` | API | Optional API-specific alias for the same Clerk server credential |
+| `CARVEO_CLERK_JWT_KEY` | API | Optional pinned Clerk JWT public key for offline verification |
+| `CARVEO_CLERK_AUTHORIZED_PARTIES` | API | Explicit JSON array of accepted frontend origins |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | Web/browser | Local sign-in route, `/sign-in` |
+| `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | Web/browser | Local sign-up route, `/sign-up` |
 | `CARVEO_ENVIRONMENT` | API | Development, test, or production mode |
 | `CARVEO_LOG_LEVEL` | API/worker/Beat | Structured log threshold |
 | `CARVEO_BEAT_INTERVAL_SECONDS` | Beat | Health sweep interval |
@@ -175,6 +203,12 @@ Use local `.env` files or deployment secret stores. Commit only `.env.example` t
 | `GRAFANA_ADMIN_PASSWORD` | Grafana | Local administrator password; secret outside local defaults |
 
 Production must reject missing secrets and unsafe wildcard CORS. Never expose a database URL, Redis URL, PAT, API key, or private key through a `NEXT_PUBLIC_*` variable.
+
+Clerk routes are public and marketplace browsing remains anonymous. The local
+Compose stack reads `frontend/.env.local` only at container runtime; Docker
+build contexts must exclude all `.env` files. Use `clerk env pull` for local
+development and deployment secret stores for production. Never copy
+`CLERK_SECRET_KEY` into a Docker build argument or image layer.
 
 ## GitHub Configuration
 
@@ -322,6 +356,8 @@ Do not claim completion based on earlier results. Run fresh verification and rep
 
 - Preserve the frontend/backend ownership boundary.
 - Keep Bun as the sole JavaScript package manager.
+- Keep marketplace browsing public; require Clerk only when server-backed buyer data is introduced.
+- Treat the verified Clerk user ID as the external identity key; never trust a client-supplied user ID without validating the session token server-side.
 - Keep the Python backend in the `backend/` uv workspace.
 - Prefer repository interfaces and domain contracts over direct fixture imports.
 - Preserve URL-backed filtering and browser-local anonymous profile behavior.
@@ -396,11 +432,15 @@ Implemented foundation:
 - Prometheus, Blackbox, PostgreSQL, and Redis exporters
 - Provisioned Grafana `Carveo Operations` dashboard
 - Docker Compose integration for application, crawler, scheduler, persistence, and observability services
+- Clerk frontend authentication, themed sign-in/sign-up routes, and runtime-only Compose secret injection
+- FastAPI Clerk bearer-token verification with authorized-party checks
+- PostgreSQL-owned shortlist, comparison, saved searches, and AI conversations
+- Idempotent anonymous-to-account workspace merge and Clerk-aware frontend synchronization
 
 Intentionally deferred:
 
-- Accounts and authentication
-- Alerts and cross-device profiles
+- Clerk deletion webhook and automated account-data erasure
+- Alerts
 - Crawl4AI source adapters and crawl execution
 - Unapproved marketplace ingestion
 - Object storage

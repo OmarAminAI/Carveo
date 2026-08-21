@@ -188,5 +188,13 @@ def test_production_requires_explicit_clerk_authorized_parties_and_a_verificatio
     ).clerk_jwt_key == "public-key"
 
 
+def test_settings_accept_clerk_cli_secret_without_copying_it(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("CLERK_SECRET_KEY", "sk_test_runtime_only")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.clerk_secret_key == "sk_test_runtime_only"
+
+
 async def ready() -> bool:
     return True
