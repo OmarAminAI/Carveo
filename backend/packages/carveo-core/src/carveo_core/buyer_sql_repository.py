@@ -9,7 +9,7 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from carveo_core.buyer import UnknownListingError
+from carveo_core.buyer import InvalidSavedSearchQueryError, UnknownListingError
 from carveo_core.buyer_contracts import (
     AnonymousWorkspaceMergeRequest,
     BuyerWorkspace,
@@ -38,7 +38,14 @@ _MAX_SAVED_SEARCHES = 12
 
 def _canonical_query(query: str) -> str:
     pairs = parse_qsl(query.removeprefix("?"), keep_blank_values=True)
-    return urlencode(sorted(pairs))
+    canonical_query = urlencode(sorted(pairs))
+    if not canonical_query:
+        raise InvalidSavedSearchQueryError()
+    return canonical_query
+
+
+def _utc(value: datetime) -> datetime:
+    return value.astimezone(UTC)
 
 
 def _saved_search(record: BuyerSavedSearchRecord) -> SavedSearch:
@@ -46,8 +53,8 @@ def _saved_search(record: BuyerSavedSearchRecord) -> SavedSearch:
         id=record.id,
         label=record.label,
         query=record.query,
-        created_at=record.created_at,
-        updated_at=record.updated_at,
+        created_at=_utc(record.created_at),
+        updated_at=_utc(record.updated_at),
     )
 
 
@@ -56,7 +63,7 @@ def _conversation_summary(record: BuyerConversationRecord) -> ConversationSummar
         id=record.id,
         title=record.title,
         status=record.status,  # type: ignore[arg-type]
-        updated_at=record.updated_at,
+        updated_at=_utc(record.updated_at),
     )
 
 
@@ -143,7 +150,9 @@ class SqlAlchemyBuyerWorkspaceRepository:
             comparison_listing_ids=comparison,
             saved_searches=saved_searches,
             conversations=conversations,
-            anonymous_merged_at=profile.anonymous_merged_at,
+            anonymous_merged_at=(
+                None if profile.anonymous_merged_at is None else _utc(profile.anonymous_merged_at)
+            ),
         )
 
     async def _to_conversation(self, record: BuyerConversationRecord) -> Conversation:
@@ -158,7 +167,7 @@ class SqlAlchemyBuyerWorkspaceRepository:
                 sequence=turn.sequence,
                 role=turn.role,  # type: ignore[arg-type]
                 content=turn.content,
-                created_at=turn.created_at,
+                created_at=_utc(turn.created_at),
             )
             for turn in await self._session.scalars(statement)
         ]
@@ -166,10 +175,10 @@ class SqlAlchemyBuyerWorkspaceRepository:
             id=record.id,
             title=record.title,
             status=record.status,  # type: ignore[arg-type]
-            updated_at=record.updated_at,
+            updated_at=_utc(record.updated_at),
             client_id=record.client_id,
             interpreted_intent=record.interpreted_intent,
-            created_at=record.created_at,
+            created_at=_utc(record.created_at),
             turns=turns,
         )
 

@@ -6,9 +6,11 @@ import selectors
 import subprocess
 import warnings
 from collections.abc import AsyncIterator, Iterator
+from datetime import UTC
+from typing import Any
 
 import pytest
-from carveo_core.buyer import UnknownListingError
+from carveo_core.buyer import InvalidSavedSearchQueryError, UnknownListingError
 from carveo_core.buyer_contracts import (
     AnonymousWorkspaceMergeRequest,
     ConversationCreate,
@@ -20,7 +22,7 @@ from carveo_core.database import create_engine, create_session_factory
 from carveo_core.models import BuyerProfileRecord
 from carveo_core.seed import seed_fixtures
 from docker.errors import DockerException
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 pytestmark = [
@@ -32,6 +34,16 @@ LISTING_A = "cv-toyota-land-cruiser-2022-01"
 LISTING_B = "cv-toyota-land-cruiser-2021-02"
 LISTING_C = "cv-toyota-rav4-2022-01"
 LISTING_D = "cv-nissan-patrol-2022-01"
+
+
+class _AsyncRendezvous:
+    def __init__(self, parties: int) -> None:
+        self._barrier = asyncio.Barrier(parties)
+        self.arrivals = 0
+
+    async def wait(self) -> None:
+        self.arrivals += 1
+        await self._barrier.wait()
 
 
 @pytest.fixture(scope="module")
@@ -98,6 +110,47 @@ async def test_get_workspace_creates_one_profile_just_in_time(
     assert first.conversations == []
     async with session_factory() as session:
         assert await session.scalar(select(func.count()).select_from(BuyerProfileRecord)) == 1
+
+
+async def test_persisted_timestamps_are_normalized_to_utc_in_non_utc_session(
+    repository: SqlAlchemyBuyerWorkspaceRepository,
+) -> None:
+    await repository._session.execute(text("SET TIME ZONE 'Asia/Dubai'"))
+    await repository._session.commit()
+    assert await repository._session.scalar(text("SHOW TIME ZONE")) == "Asia/Dubai"
+    await repository._session.rollback()
+
+    saved_search = await repository.upsert_saved_search(
+        "user-timezone",
+        SavedSearchUpsert(label="Dubai SUVs", query="bodyType=SUV"),
+    )
+    conversation = await repository.create_conversation(
+        "user-timezone",
+        ConversationCreate(
+            client_id="timezone-client",
+            title="Timezone conversation",
+            turns=[ConversationTurnCreate(role="buyer", content="Find an SUV")],
+        ),
+    )
+    merge = await repository.merge_anonymous("user-timezone", AnonymousWorkspaceMergeRequest())
+    loaded_conversation = await repository.get_conversation("user-timezone", conversation.id)
+
+    assert loaded_conversation is not None
+    timestamps = [
+        saved_search.created_at,
+        saved_search.updated_at,
+        conversation.created_at,
+        conversation.updated_at,
+        conversation.turns[0].created_at,
+        loaded_conversation.created_at,
+        loaded_conversation.updated_at,
+        loaded_conversation.turns[0].created_at,
+        merge.workspace.saved_searches[0].created_at,
+        merge.workspace.saved_searches[0].updated_at,
+        merge.workspace.conversations[0].updated_at,
+        merge.workspace.anonymous_merged_at,
+    ]
+    assert all(timestamp is not None and timestamp.tzinfo is UTC for timestamp in timestamps)
 
 
 async def test_shortlist_is_idempotent_isolated_and_rejects_unknown_listings(
@@ -177,6 +230,19 @@ async def test_saved_searches_canonicalize_deduplicate_and_cap_at_twelve(
     assert await repository.delete_saved_search("user-searches", refreshed.id) is False
 
 
+async def test_empty_canonical_saved_search_query_raises_domain_error_without_persisting(
+    repository: SqlAlchemyBuyerWorkspaceRepository,
+) -> None:
+    with pytest.raises(InvalidSavedSearchQueryError, match="canonical query must not be empty"):
+        await repository.upsert_saved_search(
+            "user-invalid-search",
+            SavedSearchUpsert(label="Invalid", query="?"),
+        )
+
+    workspace = await repository.get_workspace("user-invalid-search")
+    assert workspace.saved_searches == []
+
+
 async def test_conversations_hide_ownership_and_keep_turn_sequence(
     repository: SqlAlchemyBuyerWorkspaceRepository,
 ) -> None:
@@ -224,15 +290,33 @@ async def test_conversations_hide_ownership_and_keep_turn_sequence(
 async def test_concurrent_turns_receive_distinct_monotonic_sequences(
     repository: SqlAlchemyBuyerWorkspaceRepository,
     session_factory: async_sessionmaker[AsyncSession],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     conversation = await repository.create_conversation(
         "user-turn-lock",
         ConversationCreate(client_id="turn-lock", title="Turn lock"),
     )
 
-    async def append(content: str) -> None:
-        async with session_factory() as session:
-            concurrent_repository = SqlAlchemyBuyerWorkspaceRepository(session)
+    rendezvous = _AsyncRendezvous(2)
+    async with session_factory() as first_session, session_factory() as second_session:
+        sessions = [first_session, second_session]
+        repositories = [SqlAlchemyBuyerWorkspaceRepository(session) for session in sessions]
+        for session in sessions:
+            original_scalar = session.scalar
+
+            async def synchronized_scalar(
+                statement: object,
+                *args: object,
+                _original_scalar: Any = original_scalar,
+                **kwargs: object,
+            ) -> object:
+                if getattr(statement, "_for_update_arg", None) is not None:
+                    await rendezvous.wait()
+                return await _original_scalar(statement, *args, **kwargs)
+
+            monkeypatch.setattr(session, "scalar", synchronized_scalar)
+
+        async def append(concurrent_repository: SqlAlchemyBuyerWorkspaceRepository, content: str) -> None:
             result = await concurrent_repository.append_turn(
                 "user-turn-lock",
                 conversation.id,
@@ -240,10 +324,17 @@ async def test_concurrent_turns_receive_distinct_monotonic_sequences(
             )
             assert result is not None
 
-    await asyncio.gather(append("First concurrent turn"), append("Second concurrent turn"))
+        await asyncio.wait_for(
+            asyncio.gather(
+                append(repositories[0], "First concurrent turn"),
+                append(repositories[1], "Second concurrent turn"),
+            ),
+            timeout=5,
+        )
 
     loaded = await repository.get_conversation("user-turn-lock", conversation.id)
     assert loaded is not None
+    assert rendezvous.arrivals == 2
     assert [turn.sequence for turn in loaded.turns] == [0, 1]
     assert {turn.content for turn in loaded.turns} == {"First concurrent turn", "Second concurrent turn"}
 
@@ -314,20 +405,45 @@ async def test_merge_applies_server_first_rules_once_and_reports_unknown_ids_in_
 async def test_concurrent_merge_stamps_exactly_once(
     repository: SqlAlchemyBuyerWorkspaceRepository,
     session_factory: async_sessionmaker[AsyncSession],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     await repository.get_workspace("user-concurrent-merge")
 
-    async def merge(listing_id: str) -> tuple[bool, list[str]]:
-        async with session_factory() as session:
-            concurrent_repository = SqlAlchemyBuyerWorkspaceRepository(session)
+    rendezvous = _AsyncRendezvous(2)
+    async with session_factory() as first_session, session_factory() as second_session:
+        repositories = [
+            SqlAlchemyBuyerWorkspaceRepository(first_session),
+            SqlAlchemyBuyerWorkspaceRepository(second_session),
+        ]
+        for concurrent_repository in repositories:
+            original_get_or_create = concurrent_repository._get_or_create_profile
+
+            async def synchronized_get_or_create(
+                clerk_user_id: str,
+                _original_get_or_create: Any = original_get_or_create,
+            ) -> BuyerProfileRecord:
+                profile = await _original_get_or_create(clerk_user_id)
+                await rendezvous.wait()
+                return profile
+
+            monkeypatch.setattr(concurrent_repository, "_get_or_create_profile", synchronized_get_or_create)
+
+        async def merge(
+            concurrent_repository: SqlAlchemyBuyerWorkspaceRepository,
+            listing_id: str,
+        ) -> tuple[bool, list[str]]:
             response = await concurrent_repository.merge_anonymous(
                 "user-concurrent-merge",
                 AnonymousWorkspaceMergeRequest(shortlist_listing_ids=[listing_id]),
             )
             return response.merged, response.workspace.shortlist_listing_ids
 
-    results = await asyncio.gather(merge(LISTING_A), merge(LISTING_B))
+        results = await asyncio.wait_for(
+            asyncio.gather(merge(repositories[0], LISTING_A), merge(repositories[1], LISTING_B)),
+            timeout=5,
+        )
 
+    assert rendezvous.arrivals == 2
     assert sorted(merged for merged, _ in results) == [False, True]
     winning_listing = next(shortlist[0] for merged, shortlist in results if merged)
     async with session_factory() as session:

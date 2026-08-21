@@ -23,6 +23,11 @@ class UnknownListingError(ValueError):
         super().__init__(f"Unknown listing IDs: {', '.join(self.listing_public_ids)}")
 
 
+class InvalidSavedSearchQueryError(ValueError):
+    def __init__(self) -> None:
+        super().__init__("Saved search canonical query must not be empty")
+
+
 class OwnedResourceNotFound(LookupError):
     """A buyer-owned resource is absent or belongs to another buyer."""
 
@@ -58,4 +63,3 @@ class BuyerWorkspaceRepository(Protocol):
         conversation_id: UUID,
         payload: ConversationTurnCreate,
     ) -> Conversation | None: ...
-
