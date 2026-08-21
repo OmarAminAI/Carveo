@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useProfile } from "@/profile/profile-provider";
 
 export function SaveSearchButton({ query, label }: { query: string; label: string }) {
-  const { saveSearchDraft } = useProfile();
+  const { mode, saveSearchDraft } = useProfile();
   const [saved, setSaved] = useState(false);
-  return <Button type="button" variant="outline" onClick={() => { saveSearchDraft({ query, label }); setSaved(true); }}><BookmarkCheck className="size-4" />{saved ? "Saved locally" : "Save search"}</Button>;
+  const savedLabel = mode === "authenticated" ? "Saved to profile" : "Saved locally";
+  return <Button type="button" variant="outline" onClick={() => { saveSearchDraft({ query, label }); setSaved(true); }}><BookmarkCheck className="size-4" />{saved ? savedLabel : "Save search"}</Button>;
 }
