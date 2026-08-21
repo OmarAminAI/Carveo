@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import ConfigDict, Field, model_validator
+from pydantic import AfterValidator, ConfigDict, Field, model_validator
 
 from carveo_core.contracts import ContractModel, to_camel
 
@@ -14,6 +14,15 @@ SavedSearchQuery = Annotated[str, Field(min_length=1, max_length=2000)]
 ConversationTitle = Annotated[str, Field(min_length=1, max_length=160)]
 ConversationClientId = Annotated[str, Field(min_length=1, max_length=100)]
 TurnContent = Annotated[str, Field(min_length=1, max_length=8000)]
+
+
+def _require_utc_datetime(value: datetime) -> datetime:
+    if value.tzinfo is None or value.utcoffset() != timedelta(0):
+        raise ValueError("timestamp must be timezone-aware UTC")
+    return value
+
+
+UtcDateTime = Annotated[datetime, AfterValidator(_require_utc_datetime)]
 
 
 class BuyerContractModel(ContractModel):
@@ -28,15 +37,15 @@ class SavedSearch(BuyerContractModel):
     id: UUID
     label: SavedSearchLabel
     query: SavedSearchQuery
-    created_at: datetime
-    updated_at: datetime
+    created_at: UtcDateTime
+    updated_at: UtcDateTime
 
 
 class ConversationSummary(BuyerContractModel):
     id: UUID
     title: ConversationTitle
     status: Literal["active", "archived"]
-    updated_at: datetime
+    updated_at: UtcDateTime
 
 
 class ConversationTurn(BuyerContractModel):
@@ -44,22 +53,28 @@ class ConversationTurn(BuyerContractModel):
     sequence: int = Field(ge=0)
     role: Literal["buyer", "assistant"]
     content: TurnContent
-    created_at: datetime
+    created_at: UtcDateTime
 
 
 class Conversation(ConversationSummary):
     client_id: ConversationClientId
     interpreted_intent: dict[str, object] = Field(default_factory=dict)
-    created_at: datetime
+    created_at: UtcDateTime
     turns: list[ConversationTurn] = Field(default_factory=list)
 
 
 class BuyerWorkspace(BuyerContractModel):
     shortlist_listing_ids: list[ListingPublicId] = Field(default_factory=list)
-    comparison_listing_ids: list[ListingPublicId] = Field(default_factory=list)
+    comparison_listing_ids: list[ListingPublicId] = Field(default_factory=list, max_length=4)
     saved_searches: list[SavedSearch] = Field(default_factory=list)
     conversations: list[ConversationSummary] = Field(default_factory=list)
-    anonymous_merged_at: datetime | None = None
+    anonymous_merged_at: UtcDateTime | None = None
+
+    @model_validator(mode="after")
+    def validate_unique_comparison_listing_ids(self) -> BuyerWorkspace:
+        if len(self.comparison_listing_ids) != len(set(self.comparison_listing_ids)):
+            raise ValueError("comparisonListingIds must contain unique IDs")
+        return self
 
 
 class AnonymousWorkspaceMergeRequest(BuyerContractModel):

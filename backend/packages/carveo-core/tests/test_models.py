@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta, timezone
 from uuid import uuid4
 
 import pytest
@@ -123,6 +123,75 @@ def test_buyer_contracts_are_camel_case_and_bound_untrusted_input() -> None:
         ConversationCreate(client_id="x" * 101, title="Family SUV")
     with pytest.raises(ValidationError):
         ConversationTurnCreate(role="buyer", content="x" * 8001)
+
+
+def test_buyer_workspace_rejects_more_than_four_comparison_listing_ids() -> None:
+    with pytest.raises(ValidationError):
+        BuyerWorkspace(comparison_listing_ids=["1", "2", "3", "4", "5"])
+
+
+def test_buyer_workspace_rejects_duplicate_comparison_listing_ids() -> None:
+    with pytest.raises(ValidationError):
+        BuyerWorkspace(comparison_listing_ids=["listing-1", "listing-1"])
+
+
+def test_buyer_contracts_reject_naive_timestamps() -> None:
+    naive_timestamp = datetime(2026, 8, 21)
+    utc_timestamp = datetime(2026, 8, 21, tzinfo=UTC)
+
+    with pytest.raises(ValidationError):
+        SavedSearch(
+            id=uuid4(),
+            label="Dubai SUVs",
+            query="make=Toyota",
+            created_at=naive_timestamp,
+            updated_at=utc_timestamp,
+        )
+    with pytest.raises(ValidationError):
+        SavedSearch(
+            id=uuid4(),
+            label="Dubai SUVs",
+            query="make=Toyota",
+            created_at=utc_timestamp,
+            updated_at=naive_timestamp,
+        )
+    with pytest.raises(ValidationError):
+        ConversationSummary(
+            id=uuid4(),
+            title="Family SUV",
+            status="active",
+            updated_at=naive_timestamp,
+        )
+    with pytest.raises(ValidationError):
+        ConversationTurn(
+            id=uuid4(),
+            sequence=0,
+            role="buyer",
+            content="Find a Land Cruiser",
+            created_at=naive_timestamp,
+        )
+    with pytest.raises(ValidationError):
+        Conversation(
+            id=uuid4(),
+            title="Family SUV",
+            status="active",
+            updated_at=utc_timestamp,
+            client_id="browser-conversation-1",
+            created_at=naive_timestamp,
+        )
+    with pytest.raises(ValidationError):
+        BuyerWorkspace(anonymous_merged_at=naive_timestamp)
+
+
+def test_buyer_contracts_reject_non_utc_timestamps() -> None:
+    with pytest.raises(ValidationError):
+        ConversationTurn(
+            id=uuid4(),
+            sequence=0,
+            role="buyer",
+            content="Find a Land Cruiser",
+            created_at=datetime(2026, 8, 21, tzinfo=timezone(timedelta(hours=2))),
+        )
 
 
 def _unique_column_sets(table: object) -> list[set[str]]:
