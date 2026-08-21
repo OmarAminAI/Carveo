@@ -10,6 +10,7 @@ from carveo_api.auth import (
 )
 from carveo_api.main import create_app
 from carveo_api.settings import Settings
+from carveo_core.buyer_contracts import BuyerWorkspace
 from clerk_backend_api.security.types import AuthStatus, RequestState
 from pydantic import ValidationError
 from starlette.requests import Request
@@ -38,9 +39,19 @@ class FakeClerkClient:
         return self.state
 
 
+class FakeWorkspaceRepository:
+    async def get_workspace(self, clerk_user_id: str) -> BuyerWorkspace:
+        assert clerk_user_id == "user_clerk_1"
+        return BuyerWorkspace()
+
+
 @pytest.fixture
 async def auth_client() -> AsyncIterator[httpx.AsyncClient]:
-    app = create_app(authenticator=FakeAuthenticator("user_clerk_1"), readiness_check=lambda: ready())
+    app = create_app(
+        authenticator=FakeAuthenticator("user_clerk_1"),
+        buyer_repository=FakeWorkspaceRepository(),
+        readiness_check=lambda: ready(),
+    )
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as test_client:
         yield test_client
 
@@ -66,11 +77,17 @@ async def test_verified_subject_is_returned_without_client_identity() -> None:
 
 
 @pytest.mark.anyio
-async def test_verified_request_returns_only_clerk_subject(auth_client: httpx.AsyncClient) -> None:
+async def test_verified_subject_owns_returned_workspace(auth_client: httpx.AsyncClient) -> None:
     response = await auth_client.get("/api/v1/me/workspace", headers={"Authorization": "Bearer verified"})
 
     assert response.status_code == 200
-    assert response.json() == {"clerkUserId": "user_clerk_1"}
+    assert response.json() == {
+        "shortlistListingIds": [],
+        "comparisonListingIds": [],
+        "savedSearches": [],
+        "conversations": [],
+        "anonymousMergedAt": None,
+    }
 
 
 @pytest.mark.anyio

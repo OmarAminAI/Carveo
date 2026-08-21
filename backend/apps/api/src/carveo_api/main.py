@@ -5,6 +5,12 @@ import time
 import uuid
 from collections.abc import AsyncIterator, Awaitable, Callable
 
+from carveo_core.buyer import (
+    BuyerWorkspaceRepository,
+    InvalidSavedSearchQueryError,
+    OwnedResourceNotFound,
+    UnknownListingError,
+)
 from carveo_core.catalogue import CatalogueRepository
 from carveo_core.contracts import (
     CompareRequest,
@@ -28,13 +34,12 @@ from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import JSONResponse, Response
 
 from carveo_api.auth import (
-    AuthenticatedBuyer,
     AuthenticationError,
     AuthenticationUnavailableError,
     ClerkRequestAuthenticator,
     RequestAuthenticator,
-    require_buyer,
 )
+from carveo_api.buyer_routes import router as buyer_router
 from carveo_api.logging import configure_logging
 from carveo_api.problems import problem, validation_problem
 from carveo_api.settings import get_settings
@@ -101,6 +106,7 @@ def listing_query(
 def create_app(
     *,
     repository: CatalogueRepository | None = None,
+    buyer_repository: BuyerWorkspaceRepository | None = None,
     readiness_check: ReadinessCheck | None = None,
     authenticator: RequestAuthenticator | None = None,
 ) -> FastAPI:
@@ -112,12 +118,13 @@ def create_app(
         settings.clerk_authorized_parties,
         settings.clerk_jwt_key,
     )
+    app.state.buyer_repository = buyer_repository
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
         allow_credentials=False,
         allow_methods=["GET", "POST", "OPTIONS"],
-        allow_headers=["Content-Type", "X-Request-ID"],
+        allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
     )
 
     async def request_validation_problem(request: Request, exc: Exception) -> JSONResponse:
@@ -151,6 +158,42 @@ def create_app(
 
     app.add_exception_handler(AuthenticationUnavailableError, authentication_unavailable_problem)
 
+    async def unknown_listing_problem(request: Request, exc: Exception) -> JSONResponse:
+        assert isinstance(exc, UnknownListingError)
+        return problem(
+            status=404,
+            slug="listing-not-found",
+            title="Listing not found",
+            detail="One or more requested listings do not exist.",
+            instance=request.url.path,
+        )
+
+    app.add_exception_handler(UnknownListingError, unknown_listing_problem)
+
+    async def owned_resource_problem(request: Request, exc: Exception) -> JSONResponse:
+        assert isinstance(exc, OwnedResourceNotFound)
+        return problem(
+            status=404,
+            slug="not-found",
+            title="Resource not found",
+            detail="The requested resource does not exist.",
+            instance=request.url.path,
+        )
+
+    app.add_exception_handler(OwnedResourceNotFound, owned_resource_problem)
+
+    async def invalid_saved_search_problem(request: Request, exc: Exception) -> JSONResponse:
+        assert isinstance(exc, InvalidSavedSearchQueryError)
+        return problem(
+            status=422,
+            slug="validation",
+            title="Request validation failed",
+            detail="The saved search query must contain at least one filter.",
+            instance=request.url.path,
+        )
+
+    app.add_exception_handler(InvalidSavedSearchQueryError, invalid_saved_search_problem)
+
     async def database_problem(request: Request, exc: Exception) -> JSONResponse:
         assert isinstance(exc, SQLAlchemyError)
         logging.getLogger("carveo.api").exception("database request failed")
@@ -178,8 +221,9 @@ def create_app(
         )
 
     app.add_exception_handler(Exception, internal_problem)
-    engine = None if repository else create_engine(settings.database_url)
+    engine = None if repository is not None and buyer_repository is not None else create_engine(settings.database_url)
     session_factory = None if engine is None else create_session_factory(engine)
+    app.state.session_factory = session_factory
 
     async def repositories() -> AsyncIterator[CatalogueRepository]:
         if repository is not None:
@@ -245,9 +289,7 @@ def create_app(
             )
         return {"status": "ready"}
 
-    @app.get("/api/v1/me/workspace", include_in_schema=False)
-    async def workspace(buyer: AuthenticatedBuyer = Depends(require_buyer)) -> dict[str, str]:
-        return {"clerkUserId": buyer.clerk_user_id}
+    app.include_router(buyer_router)
 
     @app.get("/api/v1/markets", response_model=list[Market], tags=["catalogue"])
     async def markets() -> list[Market]:
