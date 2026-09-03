@@ -30,8 +30,11 @@ def test_fresh_postgres_migrates_to_head() -> None:
                 "listings",
                 "listing_photos",
                 "condition_evidence",
+                "crawl_run_items",
+                "crawl_runs",
                 "price_observations",
                 "duplicate_offers",
+                "extraction_artifacts",
             }
             inspector = inspect(engine)
             assert {"clerk_user_id"} in _unique_column_sets(inspector, "buyer_profiles")
@@ -41,19 +44,25 @@ def test_fresh_postgres_migrates_to_head() -> None:
             assert {"buyer_profile_id", "query"} in _unique_column_sets(inspector, "buyer_saved_searches")
             assert {"buyer_profile_id", "client_id"} in _unique_column_sets(inspector, "buyer_conversations")
             assert {"conversation_id", "sequence"} in _unique_column_sets(inspector, "buyer_conversation_turns")
+            assert {"correlation_key"} in _unique_column_sets(inspector, "crawl_runs")
+            assert {"run_id", "identity_key"} in _unique_column_sets(inspector, "crawl_run_items")
             assert _foreign_key_targets(inspector, "buyer_shortlist_items") == {"buyer_profiles", "listings"}
             assert _foreign_key_targets(inspector, "buyer_comparison_items") == {"buyer_profiles", "listings"}
             assert _foreign_key_targets(inspector, "buyer_saved_searches") == {"buyer_profiles"}
             assert _foreign_key_targets(inspector, "buyer_conversations") == {"buyer_profiles"}
             assert _foreign_key_targets(inspector, "buyer_conversation_turns") == {"buyer_conversations"}
+            assert _foreign_key_targets(inspector, "crawl_runs") == {"sources"}
+            assert _foreign_key_targets(inspector, "crawl_run_items") == {"crawl_runs", "listings"}
+            assert _foreign_key_targets(inspector, "extraction_artifacts") == {"crawl_run_items", "listings"}
             assert _foreign_key_ondelete(inspector, "buyer_shortlist_items") == {
                 "buyer_profiles": "CASCADE",
-                "listings": None,
+                "listings": "CASCADE",
             }
             assert _foreign_key_ondelete(inspector, "buyer_comparison_items") == {
                 "buyer_profiles": "CASCADE",
-                "listings": None,
+                "listings": "CASCADE",
             }
+            assert _foreign_key_ondelete(inspector, "price_observations") == {"listings": "SET NULL"}
             assert _foreign_key_ondelete(inspector, "buyer_saved_searches") == {"buyer_profiles": "CASCADE"}
             assert _foreign_key_ondelete(inspector, "buyer_conversations") == {"buyer_profiles": "CASCADE"}
             assert _foreign_key_ondelete(inspector, "buyer_conversation_turns") == {"buyer_conversations": "CASCADE"}
@@ -67,6 +76,16 @@ def test_fresh_postgres_migrates_to_head() -> None:
                 "ix_buyer_conversations_profile_updated_at",
                 "ix_buyer_conversation_turns_conversation_id",
                 "ix_buyer_conversation_turns_conversation_sequence",
+                "ix_crawl_runs_source_status",
+                "ix_crawl_runs_started_at",
+                "ix_crawl_runs_purge_at",
+                "ix_crawl_run_items_run_status",
+                "ix_crawl_run_items_listing_id",
+                "ix_extraction_artifacts_purge_at",
+                "ix_listings_lifecycle_purge",
+                "ix_listing_photos_content_hash",
+                "ix_listing_photos_purge_at",
+                "ix_price_observations_market_model_time",
             } <= _index_names(inspector)
             assert {"ck_buyer_comparison_items_position"} <= _check_constraint_names(
                 inspector, "buyer_comparison_items"
@@ -76,6 +95,24 @@ def test_fresh_postgres_migrates_to_head() -> None:
                 "ck_buyer_conversation_turns_role",
                 "ck_buyer_conversation_turns_sequence",
             } <= _check_constraint_names(inspector, "buyer_conversation_turns")
+            assert {"ck_crawl_runs_status"} <= _check_constraint_names(inspector, "crawl_runs")
+            assert {"ck_crawl_run_items_attempt_count"} <= _check_constraint_names(inspector, "crawl_run_items")
+            assert {"ck_listings_successful_misses_nonnegative"} <= _check_constraint_names(inspector, "listings")
+            assert {
+                "ck_sources_concurrency_positive",
+                "ck_sources_rate_limit_positive",
+            } <= _check_constraint_names(inspector, "sources")
+            price_columns = {column["name"]: column for column in inspector.get_columns("price_observations")}
+            assert price_columns["listing_id"]["nullable"] is True
+            assert {
+                "market",
+                "make",
+                "model",
+                "year",
+                "specifications",
+                "mileage_band_km",
+                "currency",
+            } <= set(price_columns)
             with engine.connect() as connection:
                 assert connection.scalar(text("SELECT extname FROM pg_extension WHERE extname='pg_trgm'")) == "pg_trgm"
             subprocess.run(
@@ -123,6 +160,12 @@ def _index_names(inspector: object) -> set[str]:
             "buyer_saved_searches",
             "buyer_conversations",
             "buyer_conversation_turns",
+            "crawl_runs",
+            "crawl_run_items",
+            "extraction_artifacts",
+            "listings",
+            "listing_photos",
+            "price_observations",
         )
         for index in inspector.get_indexes(table_name)  # type: ignore[union-attr]
     }

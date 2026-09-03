@@ -26,7 +26,10 @@ def test_catalogue_metadata_contains_expected_tables() -> None:
         "buyer_saved_searches",
         "buyer_shortlist_items",
         "condition_evidence",
+        "crawl_run_items",
+        "crawl_runs",
         "duplicate_offers",
+        "extraction_artifacts",
         "listing_photos",
         "listings",
         "price_observations",
@@ -39,6 +42,38 @@ def test_catalogue_metadata_contains_expected_tables() -> None:
         for constraint in listing.constraints
         if hasattr(constraint, "columns")
     ]
+    assert {
+        "missing_at",
+        "consecutive_successful_misses",
+        "removed_at",
+        "source_sold_at",
+        "restored_at",
+        "purge_at",
+    } <= {column.name for column in listing.columns}
+
+    source = Base.metadata.tables["sources"]
+    assert {
+        "environment_allowlist",
+        "allowed_hosts",
+        "allowed_schemes",
+        "parser_version",
+        "concurrency_limit",
+        "rate_limit_per_minute",
+        "killed_at",
+        "kill_reason",
+    } <= {column.name for column in source.columns}
+
+    observation = Base.metadata.tables["price_observations"]
+    assert observation.columns["listing_id"].nullable is True
+    assert {
+        "market",
+        "make",
+        "model",
+        "year",
+        "specifications",
+        "mileage_band_km",
+        "currency",
+    } <= {column.name for column in observation.columns}
 
 
 def test_buyer_metadata_enforces_ownership_and_ordering_constraints() -> None:

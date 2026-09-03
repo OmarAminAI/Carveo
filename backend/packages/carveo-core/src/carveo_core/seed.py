@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,6 +23,14 @@ async def seed_fixtures(session: AsyncSession) -> int:
             market="ae",
             authorization_status="fixture",
             enabled=True,
+            terms_reviewed_at=datetime(2026, 9, 3, tzinfo=UTC),
+            adapter_version="fixture-v1",
+            parser_version="fixture-parser-v1",
+            environment_allowlist=["development", "test"],
+            allowed_hosts=["fixture-origin"],
+            allowed_schemes=["http"],
+            concurrency_limit=1,
+            rate_limit_per_minute=30,
             rate_limit_metadata={},
         )
         session.add(source)
@@ -57,7 +67,8 @@ async def seed_fixtures(session: AsyncSession) -> int:
             searchable_text=" ".join([fixture.title, fixture.make, fixture.model, fixture.trim, fixture.description]),
         )
         record.photos = [
-            ListingPhoto(position=index, url=url, provenance="fixture") for index, url in enumerate(fixture.photos)
+            ListingPhoto(position=index, url=url, source_url=url, provenance="fixture")
+            for index, url in enumerate(fixture.photos)
         ]
         record.condition_evidence = [
             ConditionEvidenceRecord(
@@ -70,7 +81,17 @@ async def seed_fixtures(session: AsyncSession) -> int:
             for evidence in fixture.condition_evidence
         ]
         record.price_observations = [
-            PriceObservationRecord(observed_at=observation.observed_at, price=observation.price)
+            PriceObservationRecord(
+                observed_at=observation.observed_at,
+                price=observation.price,
+                market=fixture.market,
+                make=fixture.make,
+                model=fixture.model,
+                year=fixture.year,
+                specifications=fixture.specifications,
+                mileage_band_km=(fixture.mileage_km // 10_000) * 10_000,
+                currency=fixture.currency,
+            )
             for observation in fixture.price_history
         ]
         record.duplicate_offers = [

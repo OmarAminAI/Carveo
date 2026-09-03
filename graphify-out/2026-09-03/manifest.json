@@ -1138,5 +1138,11 @@
     "seen": 1788465772.2282548,
     "ast_hash": "0ea0ce8b8e93ac25f8161d1f214ed43e",
     "semantic_hash": ""
+  },
+  "docs/superpowers/plans/2026-09-03-fixture-backed-ingestion.md": {
+    "mtime": 1788466500.8060062,
+    "seen": 1788466530.672079,
+    "ast_hash": "36ddb35894cbf1762ee4175936ecd122",
+    "semantic_hash": ""
   }
 }

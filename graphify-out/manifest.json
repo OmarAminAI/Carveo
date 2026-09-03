@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "backend/apps/api/tests/test_migrations.py": {
-    "mtime": 1787345709.3892748,
-    "seen": 1787351033.1416152,
-    "ast_hash": "b24af09bd9992698332187ca2342d07b",
+    "mtime": 1788467158.7566006,
+    "seen": 1788467328.61429,
+    "ast_hash": "9cfe15564c28150de84a0af984c902dc",
     "semantic_hash": ""
   },
   "backend/contracts/openapi.json": {
@@ -138,16 +138,16 @@
     "semantic_hash": "ce584b72241b24559901854910aaeb6b"
   },
   "backend/packages/carveo-core/src/carveo_core/models.py": {
-    "mtime": 1787345084.8308074,
-    "seen": 1787351033.1416152,
-    "ast_hash": "28d2fbec1a8ca38468274213bb7ffa1a",
+    "mtime": 1788467137.3868365,
+    "seen": 1788467328.61429,
+    "ast_hash": "b42177e6fc341adb43944e5d5912e273",
     "semantic_hash": ""
   },
   "backend/packages/carveo-core/src/carveo_core/seed.py": {
-    "mtime": 1787241529.6306655,
-    "seen": 1787257344.3151362,
-    "ast_hash": "a59843b2f6b8f10a314effc221dae28b",
-    "semantic_hash": "a59843b2f6b8f10a314effc221dae28b"
+    "mtime": 1788467279.8945794,
+    "seen": 1788467328.61429,
+    "ast_hash": "5f653c64dc0aa12d59489ae3c102e98a",
+    "semantic_hash": ""
   },
   "backend/packages/carveo-core/src/carveo_core/sql_repository.py": {
     "mtime": 1787242027.0360365,
@@ -174,9 +174,9 @@
     "semantic_hash": "487c2e6caa2f8ed7952aef9b5e032264"
   },
   "backend/packages/carveo-core/tests/test_models.py": {
-    "mtime": 1787345708.1904314,
-    "seen": 1787351033.1416152,
-    "ast_hash": "08a13c64408d52a00c0e9b83e9076a4c",
+    "mtime": 1788466927.137248,
+    "seen": 1788467328.61429,
+    "ast_hash": "173c260c1802675df714b646f43a276a",
     "semantic_hash": ""
   },
   "backend/packages/carveo-core/tests/test_valuation.py": {
@@ -1143,6 +1143,24 @@
     "mtime": 1788466500.8060062,
     "seen": 1788466530.672079,
     "ast_hash": "36ddb35894cbf1762ee4175936ecd122",
+    "semantic_hash": ""
+  },
+  "backend/apps/api/alembic/versions/20260903_0003_ingestion_foundation.py": {
+    "mtime": 1788467291.7264957,
+    "seen": 1788467328.61429,
+    "ast_hash": "4d903d3fb45ddb26dec4e3470f84fff1",
+    "semantic_hash": ""
+  },
+  "backend/packages/carveo-core/src/carveo_core/ingestion_contracts.py": {
+    "mtime": 1788466978.4398022,
+    "seen": 1788467328.61429,
+    "ast_hash": "d242715cbc95f2a628fabab5d698be86",
+    "semantic_hash": ""
+  },
+  "backend/packages/carveo-core/tests/test_ingestion_contracts.py": {
+    "mtime": 1788467240.41961,
+    "seen": 1788467328.61429,
+    "ast_hash": "917053c1f862082ae504387d520d6ae3",
     "semantic_hash": ""
   }
 }

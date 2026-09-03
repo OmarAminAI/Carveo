@@ -34,6 +34,10 @@ class TimestampMixin:
 
 class Source(Base, TimestampMixin):
     __tablename__ = "sources"
+    __table_args__ = (
+        CheckConstraint("concurrency_limit > 0", name="ck_sources_concurrency_positive"),
+        CheckConstraint("rate_limit_per_minute > 0", name="ck_sources_rate_limit_positive"),
+    )
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     key: Mapped[str] = mapped_column(String(80), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(160), nullable=False)
@@ -42,8 +46,17 @@ class Source(Base, TimestampMixin):
     enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     terms_reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     adapter_version: Mapped[str | None] = mapped_column(String(40))
+    parser_version: Mapped[str | None] = mapped_column(String(40))
+    environment_allowlist: Mapped[list[str]] = mapped_column(JSONB, default=list, nullable=False)
+    allowed_hosts: Mapped[list[str]] = mapped_column(JSONB, default=list, nullable=False)
+    allowed_schemes: Mapped[list[str]] = mapped_column(JSONB, default=list, nullable=False)
+    concurrency_limit: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    rate_limit_per_minute: Mapped[int] = mapped_column(Integer, default=30, nullable=False)
+    killed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    kill_reason: Mapped[str | None] = mapped_column(String(240))
     rate_limit_metadata: Mapped[dict[str, object]] = mapped_column(JSONB, default=dict, nullable=False)
     listings: Mapped[list[ListingRecord]] = relationship(back_populates="source")
+    crawl_runs: Mapped[list[CrawlRunRecord]] = relationship(back_populates="source")
 
 
 class ListingRecord(Base, TimestampMixin):
@@ -54,6 +67,10 @@ class ListingRecord(Base, TimestampMixin):
         Index("ix_listings_make_model_year", "make", "model", "year"),
         Index("ix_listings_price", "price"),
         Index("ix_listings_mileage", "mileage_km"),
+        Index("ix_listings_lifecycle_purge", "lifecycle_status", "purge_at"),
+        CheckConstraint(
+            "consecutive_successful_misses >= 0", name="ck_listings_successful_misses_nonnegative"
+        ),
     )
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     public_id: Mapped[str] = mapped_column(String(160), unique=True, nullable=False)
@@ -78,6 +95,12 @@ class ListingRecord(Base, TimestampMixin):
     features: Mapped[list[str]] = mapped_column(JSONB, default=list, nullable=False)
     first_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    missing_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    consecutive_successful_misses: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    source_sold_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    restored_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    purge_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     searchable_text: Mapped[str] = mapped_column(Text, nullable=False)
     source: Mapped[Source] = relationship(back_populates="listings")
     photos: Mapped[list[ListingPhoto]] = relationship(
@@ -87,7 +110,7 @@ class ListingRecord(Base, TimestampMixin):
         back_populates="listing", cascade="all, delete-orphan"
     )
     price_observations: Mapped[list[PriceObservationRecord]] = relationship(
-        back_populates="listing", cascade="all, delete-orphan", order_by="PriceObservationRecord.observed_at"
+        back_populates="listing", passive_deletes=True, order_by="PriceObservationRecord.observed_at"
     )
     duplicate_offers: Mapped[list[DuplicateOfferRecord]] = relationship(
         back_populates="listing", cascade="all, delete-orphan"
@@ -96,13 +119,24 @@ class ListingRecord(Base, TimestampMixin):
 
 class ListingPhoto(Base):
     __tablename__ = "listing_photos"
-    __table_args__ = (UniqueConstraint("listing_id", "position", name="uq_photo_position"),)
+    __table_args__ = (
+        UniqueConstraint("listing_id", "position", name="uq_photo_position"),
+        Index("ix_listing_photos_content_hash", "content_hash"),
+        Index("ix_listing_photos_purge_at", "purge_at"),
+    )
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     listing_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("listings.id", ondelete="CASCADE"), nullable=False)
     position: Mapped[int] = mapped_column(Integer, nullable=False)
     url: Mapped[str] = mapped_column(Text, nullable=False)
+    source_url: Mapped[str | None] = mapped_column(Text)
     provenance: Mapped[str] = mapped_column(String(80), nullable=False)
     source_media_id: Mapped[str | None] = mapped_column(String(160))
+    storage_key: Mapped[str | None] = mapped_column(String(512))
+    content_hash: Mapped[str | None] = mapped_column(String(64))
+    media_type: Mapped[str | None] = mapped_column(String(80))
+    byte_size: Mapped[int | None] = mapped_column(BigInteger)
+    refreshed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    purge_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     listing: Mapped[ListingRecord] = relationship(back_populates="photos")
 
 
@@ -120,12 +154,22 @@ class ConditionEvidenceRecord(Base):
 
 class PriceObservationRecord(Base):
     __tablename__ = "price_observations"
-    __table_args__ = (UniqueConstraint("listing_id", "observed_at", name="uq_price_observation_time"),)
+    __table_args__ = (
+        UniqueConstraint("listing_id", "observed_at", name="uq_price_observation_time"),
+        Index("ix_price_observations_market_model_time", "market", "make", "model", "observed_at"),
+    )
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    listing_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("listings.id", ondelete="CASCADE"), nullable=False)
+    listing_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("listings.id", ondelete="SET NULL"))
     observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     price: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    listing: Mapped[ListingRecord] = relationship(back_populates="price_observations")
+    market: Mapped[str] = mapped_column(String(8), nullable=False)
+    make: Mapped[str] = mapped_column(String(100), nullable=False)
+    model: Mapped[str] = mapped_column(String(100), nullable=False)
+    year: Mapped[int] = mapped_column(Integer, nullable=False)
+    specifications: Mapped[str] = mapped_column(String(48), nullable=False)
+    mileage_band_km: Mapped[int] = mapped_column(Integer, nullable=False)
+    currency: Mapped[str] = mapped_column(String(3), nullable=False)
+    listing: Mapped[ListingRecord | None] = relationship(back_populates="price_observations")
 
 
 class DuplicateOfferRecord(Base):
@@ -136,6 +180,86 @@ class DuplicateOfferRecord(Base):
     price: Mapped[int] = mapped_column(BigInteger, nullable=False)
     url: Mapped[str] = mapped_column(Text, nullable=False)
     listing: Mapped[ListingRecord] = relationship(back_populates="duplicate_offers")
+
+
+class CrawlRunRecord(Base):
+    __tablename__ = "crawl_runs"
+    __table_args__ = (
+        UniqueConstraint("correlation_key", name="uq_crawl_runs_correlation_key"),
+        Index("ix_crawl_runs_source_status", "source_id", "status"),
+        Index("ix_crawl_runs_started_at", "started_at"),
+        Index("ix_crawl_runs_purge_at", "purge_at"),
+        CheckConstraint(
+            "status IN ('queued', 'running', 'completed', 'partially_completed', 'failed')",
+            name="ck_crawl_runs_status",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    source_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("sources.id"), nullable=False)
+    query_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    fixture_scenario: Mapped[str] = mapped_column(String(80), nullable=False)
+    trigger: Mapped[str] = mapped_column(String(24), nullable=False)
+    correlation_key: Mapped[str] = mapped_column(String(240), nullable=False)
+    adapter_version: Mapped[str] = mapped_column(String(40), nullable=False)
+    parser_version: Mapped[str] = mapped_column(String(40), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    discovery_complete: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    counters: Mapped[dict[str, int]] = mapped_column(JSONB, default=dict, nullable=False)
+    queued_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    error_code: Mapped[str | None] = mapped_column(String(80))
+    purge_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    source: Mapped[Source] = relationship(back_populates="crawl_runs")
+    items: Mapped[list[CrawlRunItemRecord]] = relationship(back_populates="run", cascade="all, delete-orphan")
+
+
+class CrawlRunItemRecord(Base):
+    __tablename__ = "crawl_run_items"
+    __table_args__ = (
+        UniqueConstraint("run_id", "identity_key", name="uq_crawl_run_items_run_identity"),
+        Index("ix_crawl_run_items_run_status", "run_id", "fetch_status", "parse_status"),
+        Index("ix_crawl_run_items_listing_id", "listing_id"),
+        CheckConstraint("attempt_count >= 0", name="ck_crawl_run_items_attempt_count"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("crawl_runs.id", ondelete="CASCADE"), nullable=False)
+    identity_key: Mapped[str] = mapped_column(String(512), nullable=False)
+    source_listing_id: Mapped[str | None] = mapped_column(String(160))
+    canonical_url: Mapped[str] = mapped_column(Text, nullable=False)
+    search_page_key: Mapped[str] = mapped_column(String(160), nullable=False)
+    listing_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("listings.id", ondelete="SET NULL"))
+    fetch_status: Mapped[str] = mapped_column(String(24), nullable=False, default="pending")
+    parse_status: Mapped[str] = mapped_column(String(24), nullable=False, default="pending")
+    attempt_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    content_fingerprint: Mapped[str | None] = mapped_column(String(64))
+    error_code: Mapped[str | None] = mapped_column(String(80))
+    discovered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    run: Mapped[CrawlRunRecord] = relationship(back_populates="items")
+    artifacts: Mapped[list[ExtractionArtifactRecord]] = relationship(
+        back_populates="run_item", cascade="all, delete-orphan"
+    )
+
+
+class ExtractionArtifactRecord(Base):
+    __tablename__ = "extraction_artifacts"
+    __table_args__ = (Index("ix_extraction_artifacts_purge_at", "purge_at"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_item_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("crawl_run_items.id", ondelete="CASCADE"), nullable=False
+    )
+    listing_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("listings.id", ondelete="SET NULL"))
+    extraction_payload: Mapped[dict[str, object]] = mapped_column(JSONB, nullable=False)
+    extraction_evidence: Mapped[dict[str, object]] = mapped_column(JSONB, default=dict, nullable=False)
+    parser_version: Mapped[str] = mapped_column(String(40), nullable=False)
+    content_fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    purge_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    run_item: Mapped[CrawlRunItemRecord] = relationship(back_populates="artifacts")
 
 
 class BuyerProfileRecord(Base, TimestampMixin):
