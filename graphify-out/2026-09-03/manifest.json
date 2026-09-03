@@ -816,9 +816,9 @@
     "semantic_hash": ""
   },
   "backend/docker-compose.yml": {
-    "mtime": 1787350043.9529169,
-    "seen": 1787351033.1416152,
-    "ast_hash": "11e17e4700819c9b6dac3db62c891a43",
+    "mtime": 1788467959.7422514,
+    "seen": 1788468168.5869145,
+    "ast_hash": "40f304b35d33e911bce318bb8ff1aab6",
     "semantic_hash": ""
   },
   "codex.md": {
@@ -1185,6 +1185,174 @@
     "mtime": 1788467444.348984,
     "seen": 1788467474.8884478,
     "ast_hash": "387063df61f767c8bc909d423b76b90e",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/scenarios.json": {
+    "mtime": 1788467752.5617626,
+    "seen": 1788468168.5869145,
+    "ast_hash": "de950b628869bea81fc4b3bdccd31aa3",
+    "semantic_hash": ""
+  },
+  "backend/workers/ingestion/tests/test_fixture_corpus.py": {
+    "mtime": 1788468130.951393,
+    "seen": 1788468168.5869145,
+    "ast_hash": "42f75dce6de034d52dd933252e5ae65d",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/failure-blocked.html": {
+    "mtime": 1788467807.0953856,
+    "seen": 1788468168.5869145,
+    "ast_hash": "669fc65a9226160c8dfbb1abbeb4e7f1",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/failure-malformed.html": {
+    "mtime": 1788467802.840327,
+    "seen": 1788468168.5869145,
+    "ast_hash": "904d5c1e2b1588b97b7f5bc511229275",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/failure-not-found.html": {
+    "mtime": 1788467811.336292,
+    "seen": 1788468168.5869145,
+    "ast_hash": "f524514c147553ff2466bc6b7d5eb0c1",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/failure-timeout.html": {
+    "mtime": 1788467809.2074938,
+    "seen": 1788468168.5869145,
+    "ast_hash": "4d62443d0d23537f3a4f07b37d61292d",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/failure-units.html": {
+    "mtime": 1788467805.0655854,
+    "seen": 1788468168.5869145,
+    "ast_hash": "236546aa523bbbe46e820a574d0d34aa",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/fixture-001-changed.html": {
+    "mtime": 1788468025.059593,
+    "seen": 1788468168.5869145,
+    "ast_hash": "56232798a033d8da80ba065e84ecb5f0",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/fixture-001.html": {
+    "mtime": 1788468023.0656898,
+    "seen": 1788468168.5869145,
+    "ast_hash": "fc09b2c9adc3dbd66e745913e4705f0f",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/fixture-002.html": {
+    "mtime": 1788468027.0760171,
+    "seen": 1788468168.5869145,
+    "ast_hash": "854b5fa1085ce39a7aa5eea66bf7255f",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/fixture-003.html": {
+    "mtime": 1788468029.0566475,
+    "seen": 1788468168.5869145,
+    "ast_hash": "e0b29b6af5a452bcde1888b932c8acf4",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/fixture-004.html": {
+    "mtime": 1788468031.0842648,
+    "seen": 1788468168.5869145,
+    "ast_hash": "1a327095bc73019744bc9907348bb08b",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/fixture-005.html": {
+    "mtime": 1788468033.1562238,
+    "seen": 1788468168.5869145,
+    "ast_hash": "ac4e74e168afad6a77dee94c0521feec",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/fixture-006.html": {
+    "mtime": 1788468035.1863608,
+    "seen": 1788468168.5869145,
+    "ast_hash": "c763f31ef42138f75bfdd1d696ed96b3",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/fixture-007.html": {
+    "mtime": 1788468091.2292502,
+    "seen": 1788468168.5869145,
+    "ast_hash": "57811f8f39d39d96fbf27d717a1f0b8e",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/fixture-008.html": {
+    "mtime": 1788468093.3400078,
+    "seen": 1788468168.5869145,
+    "ast_hash": "e0280510f7e7e3b0aa85df592534c566",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/fixture-009.html": {
+    "mtime": 1788468095.361962,
+    "seen": 1788468168.5869145,
+    "ast_hash": "6aafe2073c7a7b744ce546f39ffa547d",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/fixture-010.html": {
+    "mtime": 1788468097.3466878,
+    "seen": 1788468168.5869145,
+    "ast_hash": "fcf8d15eb8f3924c475e563e89d5f51e",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/fixture-011.html": {
+    "mtime": 1788468099.3884814,
+    "seen": 1788468168.5869145,
+    "ast_hash": "65e72b1355425585ba13c8b7fc775bbf",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/fixture-012-restored.html": {
+    "mtime": 1788468103.4362297,
+    "seen": 1788468168.5869145,
+    "ast_hash": "a1fd525327d7863a84f25f1586708d99",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/listings/fixture-012.html": {
+    "mtime": 1788468101.444118,
+    "seen": 1788468168.5869145,
+    "ast_hash": "4c09884d9a8a7e5b23aa050b1db142e6",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/search/baseline-page-1.html": {
+    "mtime": 1788467756.0661318,
+    "seen": 1788468168.5869145,
+    "ast_hash": "e72f94276dd0a108acd3b56a7be22e13",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/search/baseline-page-2.html": {
+    "mtime": 1788467758.639895,
+    "seen": 1788468168.5869145,
+    "ast_hash": "79a94174c0f7c69d13810bca3d7440fd",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/search/changed-page-1.html": {
+    "mtime": 1788467760.6005998,
+    "seen": 1788468168.5869145,
+    "ast_hash": "0cd45708e6930523a19afbf7a49c2779",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/search/failures.html": {
+    "mtime": 1788467769.0060773,
+    "seen": 1788468168.5869145,
+    "ast_hash": "ac1dfda553b8101fd08aeed3c2778b85",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/search/missing-page-1.html": {
+    "mtime": 1788467762.5721648,
+    "seen": 1788468168.5869145,
+    "ast_hash": "a34392ca300c7a069ce1c785c1041489",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/search/missing-page-2.html": {
+    "mtime": 1788467764.829697,
+    "seen": 1788468168.5869145,
+    "ast_hash": "8bb78ad9ba4a2ef1532a8067fa6eb0c1",
+    "semantic_hash": ""
+  },
+  "backend/infra/fixtures/site/search/restored-page-2.html": {
+    "mtime": 1788467766.8317854,
+    "seen": 1788468168.5869145,
+    "ast_hash": "8256b7ef7a35c327a193bde94f39bead",
     "semantic_hash": ""
   }
 }

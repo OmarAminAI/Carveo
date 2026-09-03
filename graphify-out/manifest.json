@@ -192,9 +192,9 @@
     "semantic_hash": "1177f38435d1b5ff6ef11a53ae6e23f3"
   },
   "backend/workers/ingestion/pyproject.toml": {
-    "mtime": 1787272834.6378236,
-    "seen": 1787274954.163605,
-    "ast_hash": "9aaad65e36f0ba3ce18a9aff99e1a9e3",
+    "mtime": 1788468625.7605443,
+    "seen": 1788468837.2941523,
+    "ast_hash": "505c5ea80bdde35cbccf6a64e0d3dc60",
     "semantic_hash": ""
   },
   "backend/workers/ingestion/src/carveo_worker/__init__.py": {
@@ -1353,6 +1353,48 @@
     "mtime": 1788467766.8317854,
     "seen": 1788468168.5869145,
     "ast_hash": "8256b7ef7a35c327a193bde94f39bead",
+    "semantic_hash": ""
+  },
+  "backend/workers/ingestion/src/carveo_worker/adapters/__init__.py": {
+    "mtime": 1788468633.197402,
+    "seen": 1788468837.2941523,
+    "ast_hash": "a50b6f232ebb2e1c10ce92d541fc2bd5",
+    "semantic_hash": ""
+  },
+  "backend/workers/ingestion/src/carveo_worker/adapters/base.py": {
+    "mtime": 1788468635.197386,
+    "seen": 1788468837.2941523,
+    "ast_hash": "4996a4cde8ac42fcd257c8316bf269ec",
+    "semantic_hash": ""
+  },
+  "backend/workers/ingestion/src/carveo_worker/adapters/fixture.py": {
+    "mtime": 1788468771.1624303,
+    "seen": 1788468837.2941523,
+    "ast_hash": "094fcc5a8478d8c2e521a4ef45b67b94",
+    "semantic_hash": ""
+  },
+  "backend/workers/ingestion/src/carveo_worker/crawl4ai_client.py": {
+    "mtime": 1788468629.8038876,
+    "seen": 1788468837.2941523,
+    "ast_hash": "7e3d26f76e8fdd091b2829b22cdc2e50",
+    "semantic_hash": ""
+  },
+  "backend/workers/ingestion/src/carveo_worker/settings.py": {
+    "mtime": 1788468627.7818675,
+    "seen": 1788468837.2941523,
+    "ast_hash": "9eac8399df520a5edd5d6c457792fcc1",
+    "semantic_hash": ""
+  },
+  "backend/workers/ingestion/tests/test_crawl4ai_client.py": {
+    "mtime": 1788468773.1911385,
+    "seen": 1788468837.2941523,
+    "ast_hash": "ed8c6607a4d5418435761787ae81f08e",
+    "semantic_hash": ""
+  },
+  "backend/workers/ingestion/tests/test_fixture_adapter.py": {
+    "mtime": 1788468775.2006876,
+    "seen": 1788468837.2941523,
+    "ast_hash": "3ff5eccd833f8574fd8d4ecb35d8067c",
     "semantic_hash": ""
   }
 }
