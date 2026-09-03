@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "sourceKey": "carveo-fixture",
+  "queryKey": "popular-uae",
+  "scenarios": {
+    "baseline": {
+      "searchPages": [
+        "http://fixture-origin:8080/search/baseline-page-1.html",
+        "http://fixture-origin:8080/search/baseline-page-2.html"
+      ]
+    },
+    "unchanged": {
+      "searchPages": [
+        "http://fixture-origin:8080/search/baseline-page-1.html",
+        "http://fixture-origin:8080/search/baseline-page-2.html"
+      ]
+    },
+    "changed": {
+      "searchPages": [
+        "http://fixture-origin:8080/search/changed-page-1.html",
+        "http://fixture-origin:8080/search/baseline-page-2.html"
+      ]
+    },
+    "missing-1": {
+      "searchPages": [
+        "http://fixture-origin:8080/search/missing-page-1.html",
+        "http://fixture-origin:8080/search/missing-page-2.html"
+      ]
+    },
+    "missing-2": {
+      "searchPages": [
+        "http://fixture-origin:8080/search/missing-page-1.html",
+        "http://fixture-origin:8080/search/missing-page-2.html"
+      ]
+    },
+    "removed": {
+      "searchPages": [
+        "http://fixture-origin:8080/search/missing-page-1.html",
+        "http://fixture-origin:8080/search/missing-page-2.html"
+      ]
+    },
+    "restored": {
+      "searchPages": [
+        "http://fixture-origin:8080/search/baseline-page-1.html",
+        "http://fixture-origin:8080/search/restored-page-2.html"
+      ]
+    },
+    "failures": {
+      "searchPages": ["http://fixture-origin:8080/search/failures.html"],
+      "expectedFailures": ["malformed-json-ld", "unsupported-units", "blocked", "timeout", "not-found"]
+    }
+  }
+}
