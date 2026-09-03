@@ -1126,17 +1126,5 @@
     "seen": 1788464232.4966033,
     "ast_hash": "7e1e9fc7e7ad912cedfa7355f8031f89",
     "semantic_hash": ""
-  },
-  "backend/workers/ingestion/CONTEXT.md": {
-    "mtime": 1788465646.728044,
-    "seen": 1788465772.2282548,
-    "ast_hash": "e4844caab23011d813908cb78b55e233",
-    "semantic_hash": ""
-  },
-  "docs/superpowers/specs/2026-09-03-fixture-backed-ingestion-design.md": {
-    "mtime": 1788465747.5120814,
-    "seen": 1788465772.2282548,
-    "ast_hash": "0ea0ce8b8e93ac25f8161d1f214ed43e",
-    "semantic_hash": ""
   }
 }
