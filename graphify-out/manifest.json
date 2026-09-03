@@ -1396,5 +1396,17 @@
     "seen": 1788468837.2941523,
     "ast_hash": "3ff5eccd833f8574fd8d4ecb35d8067c",
     "semantic_hash": ""
+  },
+  "backend/workers/ingestion/src/carveo_worker/normalization.py": {
+    "mtime": 1788469046.8131285,
+    "seen": 1788469098.0432885,
+    "ast_hash": "164c3709cac225b05bc5961b3c1c65fd",
+    "semantic_hash": ""
+  },
+  "backend/workers/ingestion/tests/test_normalization.py": {
+    "mtime": 1788469048.8870473,
+    "seen": 1788469098.0432885,
+    "ast_hash": "5ffe51e7e8452ee7860efff08a616bad",
+    "semantic_hash": ""
   }
 }
