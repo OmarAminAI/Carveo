@@ -57,7 +57,7 @@ def record_to_contract(record: ListingRecord) -> Listing:
             },
             "description": record.description,
             "features": record.features,
-            "photos": [photo.url for photo in record.photos],
+            "photos": [f"/api/v1/media/{photo.id}" if photo.storage_key else photo.url for photo in record.photos],
             "first_seen_at": record.first_seen_at,
             "last_seen_at": record.last_seen_at,
             "condition_evidence": [
@@ -72,6 +72,7 @@ def record_to_contract(record: ListingRecord) -> Listing:
             "price_history": [
                 {"observed_at": observation.observed_at, "price": observation.price}
                 for observation in record.price_observations
+                if observation.listing_id == record.id
             ],
             "duplicate_offers": [
                 {"source": offer.source, "price": offer.price, "url": offer.url} for offer in record.duplicate_offers
@@ -176,14 +177,23 @@ class SqlAlchemyCatalogueRepository:
         )
 
     async def get_by_id(self, listing_id: str) -> Listing | None:
-        statement = select(ListingRecord).where(ListingRecord.public_id == listing_id).options(*_options())
+        statement = (
+            select(ListingRecord)
+            .where(ListingRecord.public_id == listing_id, ListingRecord.lifecycle_status == "active")
+            .options(*_options())
+        )
         record = await self._session.scalar(statement)
         if record is None:
             return None
         return with_deal_position(record_to_contract(record), await self._active_catalogue())
 
     async def get_related(self, listing_id: str, limit: int = 4) -> list[Listing]:
-        source = await self._session.scalar(select(ListingRecord).where(ListingRecord.public_id == listing_id))
+        source = await self._session.scalar(
+            select(ListingRecord).where(
+                ListingRecord.public_id == listing_id,
+                ListingRecord.lifecycle_status == "active",
+            )
+        )
         if source is None:
             return []
         statement = (
@@ -204,7 +214,14 @@ class SqlAlchemyCatalogueRepository:
         ]
 
     async def compare(self, request: CompareRequest) -> CompareResponse:
-        statement = select(ListingRecord).where(ListingRecord.public_id.in_(request.listing_ids)).options(*_options())
+        statement = (
+            select(ListingRecord)
+            .where(
+                ListingRecord.public_id.in_(request.listing_ids),
+                ListingRecord.lifecycle_status == "active",
+            )
+            .options(*_options())
+        )
         records = {record.public_id: record for record in await self._session.scalars(statement)}
         catalogue = await self._active_catalogue()
         return CompareResponse(
