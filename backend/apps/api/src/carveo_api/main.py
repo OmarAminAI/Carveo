@@ -31,7 +31,7 @@ from pydantic import ValidationError
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.middleware.base import RequestResponseEndpoint
-from starlette.responses import JSONResponse, Response
+from starlette.responses import JSONResponse, Response, StreamingResponse
 
 from carveo_api.auth import (
     AuthenticationError,
@@ -41,6 +41,7 @@ from carveo_api.auth import (
 )
 from carveo_api.buyer_routes import router as buyer_router
 from carveo_api.logging import configure_logging
+from carveo_api.media import DatabaseMediaService, MediaService, S3ObjectReader
 from carveo_api.problems import problem, validation_problem
 from carveo_api.settings import get_settings
 
@@ -109,6 +110,7 @@ def create_app(
     buyer_repository: BuyerWorkspaceRepository | None = None,
     readiness_check: ReadinessCheck | None = None,
     authenticator: RequestAuthenticator | None = None,
+    media_service: MediaService | None = None,
 ) -> FastAPI:
     settings = get_settings()
     configure_logging(settings.log_level)
@@ -246,6 +248,17 @@ def create_app(
 
     check_ready = readiness_check or database_ready
 
+    if media_service is None and session_factory is not None:
+        media_service = DatabaseMediaService(
+            session_factory,
+            S3ObjectReader(
+                endpoint_url=settings.object_storage_endpoint,
+                access_key=settings.object_storage_access_key,
+                secret_key=settings.object_storage_secret_key,
+                bucket=settings.object_storage_bucket,
+            ),
+        )
+
     @app.middleware("http")
     async def request_id(request: Request, call_next: RequestResponseEndpoint) -> Response:
         request_id_value = request.headers.get("X-Request-ID", str(uuid.uuid4()))
@@ -294,6 +307,47 @@ def create_app(
     @app.get("/api/v1/markets", response_model=list[Market], tags=["catalogue"])
     async def markets() -> list[Market]:
         return [Market(code="ae", locale="en-ae", name="United Arab Emirates", currency="AED")]
+
+    @app.get(
+        "/api/v1/media/{photo_id}",
+        response_class=StreamingResponse,
+        responses={
+            200: {
+                "description": "Cached listing image",
+                "content": {
+                    media_type: {"schema": {"type": "string", "format": "binary"}}
+                    for media_type in ("image/gif", "image/jpeg", "image/png", "image/webp")
+                },
+            },
+            304: {"description": "Not modified"},
+            404: {"description": "Photo not found"},
+        },
+        tags=["catalogue"],
+    )
+    async def media(photo_id: uuid.UUID, request: Request) -> Response:
+        if media_service is None:
+            raise RuntimeError("Media service is unavailable")
+        asset = await media_service.get(photo_id)
+        if asset is None:
+            return problem(
+                status=404,
+                slug="not-found",
+                title="Photo not found",
+                detail="The requested photo does not exist.",
+                instance=request.url.path,
+            )
+        etag = f'"{asset.etag}"'
+        headers = {
+            "ETag": etag,
+            "Cache-Control": "public, max-age=31536000, immutable",
+        }
+        if request.headers.get("If-None-Match") == etag:
+            return Response(status_code=304, headers=headers)
+
+        async def body() -> AsyncIterator[bytes]:
+            yield asset.data
+
+        return StreamingResponse(body(), media_type=asset.media_type, headers=headers)
 
     @app.get("/api/v1/listings", response_model=ListingPage, tags=["catalogue"])
     async def listings(

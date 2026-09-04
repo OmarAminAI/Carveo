@@ -1928,6 +1928,74 @@
         ]
       }
     },
+    "/api/v1/media/{photo_id}": {
+      "get": {
+        "operationId": "media_api_v1_media__photo_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "photo_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Photo Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/gif": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              },
+              "image/jpeg": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Cached listing image"
+          },
+          "304": {
+            "description": "Not modified"
+          },
+          "404": {
+            "description": "Photo not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Media",
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
     "/api/v1/models/{make}/{model}/insights": {
       "get": {
         "operationId": "insights_api_v1_models__make___model__insights_get",

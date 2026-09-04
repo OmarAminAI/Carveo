@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     )
     clerk_authorized_parties: list[str] = Field(default_factory=list)
     log_level: str = "INFO"
+    object_storage_endpoint: str = "http://minio:9000"
+    object_storage_access_key: str = "carveo-local"
+    object_storage_secret_key: str = "carveo-local-secret"
+    object_storage_bucket: str = "carveo-media"
 
     @model_validator(mode="after")
     def validate_production(self) -> "Settings":

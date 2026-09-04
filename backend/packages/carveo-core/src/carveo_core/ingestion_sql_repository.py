@@ -11,7 +11,14 @@ from sqlalchemy import delete, func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from carveo_core.ingestion import CreateRun, LifecycleSummary, ListingWriteOutcome, PurgeSummary
+from carveo_core.ingestion import (
+    CachedPhotoWrite,
+    CreateRun,
+    LifecycleSummary,
+    ListingWriteOutcome,
+    PhotoSwapResult,
+    PurgeSummary,
+)
 from carveo_core.ingestion_contracts import CrawlRunSummary, ListingReference, NormalizedListing, RunStatus
 from carveo_core.models import (
     BuyerComparisonItemRecord,
@@ -351,6 +358,76 @@ class SqlAlchemyIngestionRepository:
                 storage_keys=storage_keys,
             )
 
+    async def replace_listing_photos(
+        self,
+        listing_id: UUID,
+        photos: list[CachedPhotoWrite],
+        refreshed_at: datetime,
+    ) -> PhotoSwapResult:
+        async with self._session_factory() as session, session.begin():
+            listing = await session.scalar(
+                select(ListingRecord).where(ListingRecord.id == listing_id).with_for_update()
+            )
+            if listing is None:
+                raise LookupError(f"Listing {listing_id} does not exist")
+            current = list(
+                await session.scalars(
+                    select(ListingPhoto)
+                    .where(ListingPhoto.listing_id == listing_id)
+                    .order_by(ListingPhoto.position)
+                )
+            )
+            if _same_photo_set(current, photos):
+                for record, incoming in zip(current, photos, strict=True):
+                    record.refreshed_at = refreshed_at
+                    record.source_url = incoming.source_url
+                    record.source_media_id = incoming.source_media_id
+                return PhotoSwapResult(
+                    outcome="unchanged",
+                    photo_ids=[record.id for record in current],
+                    obsolete_storage_keys=[],
+                )
+
+            new_keys = {photo.storage_key for photo in photos}
+            obsolete_candidates = {
+                record.storage_key
+                for record in current
+                if record.storage_key is not None and record.storage_key not in new_keys
+            }
+            shared_keys = set(
+                await session.scalars(
+                    select(ListingPhoto.storage_key).where(
+                        ListingPhoto.storage_key.in_(obsolete_candidates),
+                        ListingPhoto.listing_id != listing_id,
+                    )
+                )
+            )
+            obsolete = sorted(obsolete_candidates - shared_keys)
+            await session.execute(delete(ListingPhoto).where(ListingPhoto.listing_id == listing_id))
+            replacements = [
+                ListingPhoto(
+                    id=uuid.uuid4(),
+                    listing_id=listing_id,
+                    position=photo.position,
+                    url="cached",
+                    source_url=photo.source_url,
+                    provenance=photo.provenance,
+                    source_media_id=photo.source_media_id,
+                    storage_key=photo.storage_key,
+                    content_hash=photo.content_hash,
+                    media_type=photo.media_type,
+                    byte_size=photo.byte_size,
+                    refreshed_at=refreshed_at,
+                )
+                for photo in photos
+            ]
+            session.add_all(replacements)
+            return PhotoSwapResult(
+                outcome="updated",
+                photo_ids=[record.id for record in replacements],
+                obsolete_storage_keys=obsolete,
+            )
+
     async def _reconcile_locked(
         self,
         session: AsyncSession,
@@ -484,6 +561,13 @@ def _fingerprint(listing: NormalizedListing) -> tuple[str, dict[str, object]]:
 
 def _increment(counters: dict[str, int], key: str) -> dict[str, int]:
     return {**counters, key: counters.get(key, 0) + 1}
+
+
+def _same_photo_set(current: list[ListingPhoto], incoming: list[CachedPhotoWrite]) -> bool:
+    return len(current) == len(incoming) and all(
+        record.position == photo.position and record.content_hash == photo.content_hash
+        for record, photo in zip(current, incoming, strict=True)
+    )
 
 
 def _as_datetime(value: object) -> datetime:

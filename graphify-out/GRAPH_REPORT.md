@@ -1,21 +1,21 @@
 # Graph Report - Carveo  (2026-09-04)
 
 ## Corpus Check
-- 196 files · ~245,723 words
+- 202 files · ~248,356 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1529 nodes · 3178 edges · 86 communities (67 shown, 19 thin omitted)
-- Extraction: 89% EXTRACTED · 11% INFERRED · 0% AMBIGUOUS · INFERRED: 363 edges (avg confidence: 0.95)
+- 1627 nodes · 3438 edges · 102 communities (82 shown, 20 thin omitted)
+- Extraction: 89% EXTRACTED · 11% INFERRED · 0% AMBIGUOUS · INFERRED: 392 edges (avg confidence: 0.94)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5d0fbd73`
+- Built from commit: `3eab6628`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- contracts.py
+- FixtureCatalogueRepository
 - Fixture-Backed Ingestion Vertical Slice Design
 - assistant-workspace.tsx
 - devDependencies
@@ -34,6 +34,7 @@
 - route.ts
 - app/layout.tsx
 - carveo_api/__init__.py
+- test_media.py
 - Authenticated Buyer Workspace Design
 - next.config.ts
 - next-env.d.ts
@@ -66,8 +67,8 @@
 - SqlAlchemyIngestionRepository
 - FakeBuyerRepository
 - ingestion_contracts.py
-- test_contract.py
-- create_app
+- main.py
+- buyer_routes.py
 - BuyerWorkspaceRepository
 - cars/page.tsx
 - OwnedResourceNotFound
@@ -78,27 +79,45 @@
 - triage-labels.md
 - test_buyer_repository.py
 - fixture-catalogue-repository.ts
+- test_fresh_postgres_migrates_to_head
+- create_app
+- BuyerWorkspaceClient
+- SqlAlchemyCatalogueRepository
+- contracts.py
+- AuthenticatedBuyer
+- query.ts
+- test_media_api.py
+- app-header.tsx
 - normalize_listing
 - Ingestion
 - test_auth.py
 - comparison-workspace.tsx
-- [model]/page.tsx
+- test_api.py
+- catalogue-repository.ts
+- ListingQuery
 - test_models.py
+- upsert_saved_search
+- calculate_deal_position
+- replace_comparison
 - WorkerSettings
+- condition-evidence.tsx
+- init.sh
 
 ## God Nodes (most connected - your core abstractions)
 1. `SqlAlchemyBuyerWorkspaceRepository` - 50 edges
-2. `SqlAlchemyIngestionRepository` - 40 edges
-3. `BuyerWorkspaceRepository` - 36 edges
-4. `FakeBuyerRepository` - 33 edges
-5. `create_app()` - 32 edges
-6. `_datetime()` - 32 edges
+2. `SqlAlchemyIngestionRepository` - 44 edges
+3. `_datetime()` - 38 edges
+4. `create_app()` - 37 edges
+5. `BuyerWorkspaceRepository` - 36 edges
+6. `FakeBuyerRepository` - 33 edges
 7. `normalize_listing()` - 31 edges
 8. `ListingReference` - 27 edges
-9. `FixtureCatalogueRepository` - 24 edges
-10. `NormalizedListing` - 24 edges
+9. `FixtureCatalogueRepository` - 26 edges
+10. `ListingRecord` - 25 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `test_production_requires_explicit_clerk_authorized_parties_and_a_verification_key()` --uses--> `Settings`  [INFERRED]
+  backend/apps/api/tests/test_auth.py → backend/apps/api/src/carveo_api/settings.py
 - `test_buyer_contracts_reject_non_utc_timestamps()` --uses--> `ConversationTurn`  [INFERRED]
   backend/packages/carveo-core/tests/test_models.py → backend/packages/carveo-core/src/carveo_core/buyer_contracts.py
 - `test_buyer_workspace_rejects_duplicate_comparison_listing_ids()` --uses--> `BuyerWorkspace`  [INFERRED]
@@ -107,41 +126,39 @@
   backend/packages/carveo-core/tests/test_models.py → backend/packages/carveo-core/src/carveo_core/buyer_contracts.py
 - `test_catalogue_metadata_contains_expected_tables()` --uses--> `Base`  [INFERRED]
   backend/packages/carveo-core/tests/test_models.py → backend/packages/carveo-core/src/carveo_core/models.py
-- `add_shortlist()` --uses--> `AuthenticatedBuyer`  [INFERRED]
-  backend/apps/api/src/carveo_api/buyer_routes.py → backend/apps/api/src/carveo_api/auth.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (86 total, 19 thin omitted)
+## Communities (102 total, 20 thin omitted)
 
-### Community 0 - "contracts.py"
-Cohesion: 0.06
-Nodes (63): client(), anyio, AsyncClient, fixture, ready(), test_detail_compare_and_missing_problem(), test_health_and_readiness_are_distinct(), test_invalid_range_is_problem_response() (+55 more)
+### Community 0 - "FixtureCatalogueRepository"
+Cohesion: 0.16
+Nodes (12): CatalogueRepository, FixtureCatalogueRepository, Listing, ListingPage, ListingQuery, Protocol, CompareRequest, CompareResponse (+4 more)
 
 ### Community 1 - "Fixture-Backed Ingestion Vertical Slice Design"
 Cohesion: 0.05
 Nodes (38): Acceptance Criteria, Architectural Shape, Catalogue Updates, Container integration tests, Crawl4AI Adapter, Crawl-run items, Crawl runs, Delivery Slices (+30 more)
 
 ### Community 2 - "assistant-workspace.tsx"
-Cohesion: 0.07
-Nodes (32): ListingPage(), metadata, dynamic, AppFooter(), AppHeader(), AssistantWorkspace(), intentHref(), newId() (+24 more)
+Cohesion: 0.16
+Nodes (16): metadata, AssistantWorkspace(), intentHref(), newId(), profile, Badge(), Bubble(), Marker() (+8 more)
 
 ### Community 3 - "devDependencies"
 Cohesion: 0.04
 Nodes (46): @axe-core/playwright, devDependencies, @axe-core/playwright, jsdom, openapi-typescript, @playwright/test, tailwindcss, @tailwindcss/postcss (+38 more)
 
 ### Community 4 - "fixture-catalogue.ts"
-Cohesion: 0.13
-Nodes (17): bodyTypes, HomePage(), makeLinks, fixtureCatalogue, mediaByBodyType, mediaByModel, Seed, seeds (+9 more)
+Cohesion: 0.18
+Nodes (9): MarketCharts(), fixtureCatalogue, mediaByBodyType, mediaByModel, Seed, seeds, seedSchema, conditionEvidenceSchema (+1 more)
 
 ### Community 5 - "index.ts"
 Cohesion: 0.32
 Nodes (4): metadata, CatalogueEnvironment, catalogueRepository, createCatalogueRepository()
 
 ### Community 6 - "profile-provider.tsx"
-Cohesion: 0.06
-Nodes (44): components, $defs, operations, paths, webhooks, anonymousConversationSchema, BrowserProfile, BuyerWorkspace (+36 more)
+Cohesion: 0.17
+Nodes (20): BrowserProfile, addComparison(), createEmptyProfile(), migrateProfile(), PROFILE_STORAGE_KEY, recordRecentView(), removeComparison(), saveSearchDraft() (+12 more)
 
 ### Community 7 - "dependencies"
 Cohesion: 0.05
@@ -168,12 +185,16 @@ Cohesion: 0.05
 Nodes (44): actor, AsyncIOScheduler, BeatRuntime, BeatSettings, BeatStore, build_scheduler(), check(), is_fresh_heartbeat() (+36 more)
 
 ### Community 13 - "[listingId]/page.tsx"
-Cohesion: 0.16
-Nodes (12): CompareButton(), DealPosition(), RecentViewRecorder(), SaveSearchButton(), ShortlistButton(), ShortlistWorkspace(), Tab, tabs (+4 more)
+Cohesion: 0.12
+Nodes (17): ListingPage(), CompareButton(), CompareTray(), DealPosition(), EmptyState(), RecentViewRecorder(), SaveSearchButton(), ShortlistButton() (+9 more)
 
 ### Community 14 - "carveo-core"
 Cohesion: 0.83
 Nodes (4): carveo-api, carveo-core, carveo-worker, carveo-workspace
+
+### Community 20 - "test_media.py"
+Cohesion: 0.08
+Nodes (32): MediaCacheResult, _DownloadedPhoto, _failed(), MediaCache, MediaValidationError, AsyncClient, UUID, ValueError (+24 more)
 
 ### Community 21 - "Authenticated Buyer Workspace Design"
 Cohesion: 0.08
@@ -192,24 +213,24 @@ Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
 ### Community 38 - "SqlAlchemyBuyerWorkspaceRepository"
-Cohesion: 0.12
-Nodes (21): ValueError, _conversation_summary(), AsyncSession, BuyerWorkspace, Conversation, ConversationCreate, ConversationSummary, ConversationTurnCreate (+13 more)
+Cohesion: 0.14
+Nodes (20): _conversation_summary(), AsyncSession, BuyerWorkspace, Conversation, ConversationCreate, ConversationSummary, ConversationTurnCreate, SavedSearch (+12 more)
 
 ### Community 39 - "test_fixture_corpus.py"
 Cohesion: 0.39
 Nodes (5): load_manifest(), test_baseline_contains_twelve_unique_listings_and_a_cross_page_duplicate(), test_every_manifest_page_exists_and_uses_private_fixture_origin(), test_failure_scenario_covers_expected_failure_classes(), test_manifest_defines_immutable_lifecycle_scenarios()
 
 ### Community 40 - "Listing"
-Cohesion: 0.14
-Nodes (7): Listing, ModelMarketSummary, ApiCatalogueRepository, listingPageSchema, modelSummarySchema, parseAllQuery(), CatalogueRepository
+Cohesion: 0.16
+Nodes (8): paths, Listing, ListingPage, ApiCatalogueRepository, listingPageSchema, modelSummarySchema, parseAllQuery(), CatalogueRepository
 
 ### Community 41 - "Global Constraints"
 Cohesion: 0.18
 Nodes (10): Authenticated Buyer Workspace Implementation Plan, Global Constraints, Task 1: Clerk Request Authentication Boundary, Task 2: Buyer Contracts, Tables, and Migration, Task 3: SQLAlchemy Buyer Workspace Repository, Task 4: Protected FastAPI Buyer Routes, Task 5: OpenAPI and TypeScript Buyer Contracts, Task 6: Authenticated Frontend Workspace Client (+2 more)
 
 ### Community 42 - "schemas.ts"
-Cohesion: 0.15
-Nodes (12): ConditionEvidencePanel(), groups, PriceHistoryChart(), assistantTurnSchema, ComparisonSelection, ConditionEvidence, ConversationTurn, conversationTurnSchema (+4 more)
+Cohesion: 0.07
+Nodes (31): PriceHistoryChart(), components, $defs, operations, webhooks, AnonymousConversation, anonymousConversationSchema, AssistantTurn (+23 more)
 
 ### Community 43 - "graphify reference: extra exports and benchmark"
 Cohesion: 0.22
@@ -253,35 +274,35 @@ Nodes (7): Carveo Observability Foundation Implementation Plan, Global Constrain
 
 ### Community 61 - "buyer_sql_repository.py"
 Cohesion: 0.20
-Nodes (21): AnonymousWorkspaceMergeRequest, BuyerContractModel, BuyerWorkspace, ComparisonUpdate, Conversation, ConversationCreate, ConversationSummary, ConversationTurn (+13 more)
+Nodes (20): AnonymousWorkspaceMergeRequest, BuyerContractModel, BuyerWorkspace, ComparisonUpdate, Conversation, ConversationCreate, ConversationSummary, ConversationTurn (+12 more)
 
 ### Community 62 - "SqlAlchemyIngestionRepository"
 Cohesion: 0.08
-Nodes (68): _require_utc_datetime(), _datetime(), CrawlRunSummary, model_validator, RunStatus, CreateRun, IngestionModel, IngestionRepository (+60 more)
+Nodes (71): _datetime(), CachedPhotoWrite, CrawlRunSummary, model_validator, RunStatus, CreateRun, IngestionModel, IngestionRepository (+63 more)
 
 ### Community 63 - "FakeBuyerRepository"
-Cohesion: 0.13
-Nodes (20): buyer_api(), FakeBuyerRepository, anyio, AsyncClient, BuyerWorkspace, Conversation, ConversationCreate, ConversationSummary (+12 more)
+Cohesion: 0.12
+Nodes (20): FakeBuyerRepository, anyio, AsyncClient, BuyerWorkspace, Conversation, ConversationCreate, ConversationSummary, ConversationTurnCreate (+12 more)
 
 ### Community 64 - "ingestion_contracts.py"
 Cohesion: 0.05
-Nodes (71): CrawlRunItemResult, ListingReference, MediaCacheResult, NormalizedConditionEvidence, NormalizedPhoto, BaseModel, RawConditionClaim, RawListing (+63 more)
+Nodes (70): CrawlRunItemResult, ListingReference, NormalizedConditionEvidence, NormalizedPhoto, BaseModel, RawConditionClaim, RawListing, RawPhoto (+62 more)
 
-### Community 65 - "test_contract.py"
-Cohesion: 0.33
-Nodes (3): main(), test_committed_openapi_document_is_current(), Path
+### Community 65 - "main.py"
+Cohesion: 0.13
+Nodes (13): AuthenticationError, AuthenticationUnavailableError, Exception, main(), configure_logging(), listing_query(), ListingQuery, FakeAuthenticator (+5 more)
 
-### Community 66 - "create_app"
-Cohesion: 0.07
-Nodes (48): AuthenticatedBuyer, AuthenticationError, AuthenticationUnavailableError, Exception, Protocol, Request, RequestAuthenticator, require_buyer() (+40 more)
+### Community 66 - "buyer_routes.py"
+Cohesion: 0.18
+Nodes (19): append_turn(), buyer_repositories(), conversation_detail(), create_conversation(), delete_saved_search(), merge_workspace(), Conversation, ConversationCreate (+11 more)
 
 ### Community 67 - "BuyerWorkspaceRepository"
-Cohesion: 0.10
-Nodes (18): add_shortlist(), BuyerWorkspace, remove_shortlist(), replace_comparison(), workspace(), BuyerWorkspaceRepository, BuyerWorkspace, Conversation (+10 more)
+Cohesion: 0.14
+Nodes (10): BuyerWorkspaceRepository, BuyerWorkspace, Conversation, ConversationCreate, ConversationSummary, ConversationTurnCreate, Protocol, SavedSearch (+2 more)
 
 ### Community 68 - "cars/page.tsx"
-Cohesion: 0.33
-Nodes (7): CarsPage(), metadata, toParams(), FilterFields(), options, MobileFilterDrawer(), toListingSearchParams()
+Cohesion: 0.31
+Nodes (8): CarsPage(), metadata, toParams(), FilterFields(), options, MobileFilterDrawer(), toListingSearchParams(), ListingQuery
 
 ### Community 69 - "OwnedResourceNotFound"
 Cohesion: 0.67
@@ -292,52 +313,112 @@ Cohesion: 0.09
 Nodes (21): Acceptance Checklist, API, observability, and frontend, File Structure, Fixture-Backed Ingestion Implementation Plan, Fixture origin and media, Global Constraints, Reference Notes, Shared backend domain (+13 more)
 
 ### Community 76 - "test_buyer_repository.py"
-Cohesion: 0.27
-Nodes (14): anyio_backend(), _AsyncRendezvous, _clear_buyers(), postgres_database_url(), async_sessionmaker, AsyncSession, fixture, MonkeyPatch (+6 more)
+Cohesion: 0.18
+Nodes (20): SavedSearchUpsert, anyio_backend(), _AsyncRendezvous, _clear_buyers(), postgres_database_url(), async_sessionmaker, AsyncSession, fixture (+12 more)
 
 ### Community 77 - "fixture-catalogue-repository.ts"
+Cohesion: 0.19
+Nodes (6): DealPosition, ModelMarketSummary, calculateDealPosition(), median(), FixtureCatalogueRepository, matches()
+
+### Community 78 - "test_fresh_postgres_migrates_to_head"
+Cohesion: 0.11
+Nodes (20): do_run_migrations(), run_async_migrations(), run(), get_settings(), BaseSettings, model_validator, Settings, _check_constraint_names() (+12 more)
+
+### Community 79 - "create_app"
+Cohesion: 0.14
+Nodes (14): create_app(), DatabaseMediaService, MediaAsset, MediaService, ObjectReader, async_sessionmaker, AsyncSession, Protocol (+6 more)
+
+### Community 80 - "BuyerWorkspaceClient"
 Cohesion: 0.21
-Nodes (7): DealPosition, ListingPage, ListingQuery, calculateDealPosition(), median(), FixtureCatalogueRepository, matches()
+Nodes (4): BuyerWorkspace, Conversation, SavedSearch, BuyerWorkspaceClient
+
+### Community 82 - "SqlAlchemyCatalogueRepository"
+Cohesion: 0.27
+Nodes (10): with_deal_position(), _options(), AsyncSession, Listing, ListingPage, ListingQuery, record_to_contract(), SqlAlchemyCatalogueRepository (+2 more)
+
+### Community 83 - "contracts.py"
+Cohesion: 0.28
+Nodes (14): ConditionEvidence, ContractModel, DuplicateOffer, FixtureSeed, Listing, Market, PriceObservation, BaseModel (+6 more)
+
+### Community 84 - "AuthenticatedBuyer"
+Cohesion: 0.17
+Nodes (11): AuthenticatedBuyer, ClerkRequestAuthenticator, Protocol, Request, RequestAuthenticator, require_buyer(), FakeAuthenticator, Request (+3 more)
+
+### Community 85 - "query.ts"
+Cohesion: 0.18
+Nodes (10): bodyTypes, HomePage(), makeLinks, SearchConsole(), vehicleSuggestions, arrayKeys, numberKeys, parseListingQuery() (+2 more)
+
+### Community 86 - "test_media_api.py"
+Cohesion: 0.28
+Nodes (11): client(), anyio, AsyncClient, fixture, UUID, StubMediaService, test_media_openapi_contract_declares_binary_image_responses(), test_media_proxy_returns_bytes_type_etag_and_immutable_cache_headers() (+3 more)
+
+### Community 87 - "app-header.tsx"
+Cohesion: 0.24
+Nodes (6): dynamic, AppFooter(), AppHeader(), AuthControls(), AuthControlsProps, MobileNavigation()
 
 ### Community 88 - "normalize_listing"
 Cohesion: 0.09
 Nodes (49): NormalizedListing, canonicalize_source_url(), ValueError, resolve_source_identity(), SourceIdentity, SourceIdentityError, _alias_key(), NormalizationError (+41 more)
 
 ### Community 90 - "test_auth.py"
-Cohesion: 0.06
-Nodes (45): do_run_migrations(), run_async_migrations(), ClerkRequestAuthenticator, run(), get_settings(), BaseSettings, model_validator, Settings (+37 more)
+Cohesion: 0.12
+Nodes (25): auth_client(), FakeClerkClient, FakeWorkspaceRepository, anyio, AsyncClient, BuyerWorkspace, Exception, fixture (+17 more)
 
 ### Community 91 - "comparison-workspace.tsx"
-Cohesion: 0.31
+Cohesion: 0.27
 Nodes (7): loadComparisonListings(), ComparePage(), metadata, buildComparisonRows(), ComparisonRow, ComparisonWorkspace(), money()
 
-### Community 93 - "[model]/page.tsx"
-Cohesion: 0.36
-Nodes (5): resolveModelSegment(), generateMetadata(), MarketPage(), resolveSegment(), MarketCharts()
+### Community 92 - "test_api.py"
+Cohesion: 0.33
+Nodes (11): client(), anyio, AsyncClient, fixture, ready(), test_detail_compare_and_missing_problem(), test_health_and_readiness_are_distinct(), test_invalid_range_is_problem_response() (+3 more)
+
+### Community 93 - "catalogue-repository.ts"
+Cohesion: 0.42
+Nodes (5): resolveModelSegment(), generateMetadata(), MarketPage(), resolveSegment(), slugifyVehicleName()
+
+### Community 94 - "ListingQuery"
+Cohesion: 0.27
+Nodes (10): ListingQuery, model_validator, anyio, fixture, repository(), test_compare_preserves_order_and_reports_missing(), test_filters_sorts_and_paginates(), test_query_rejects_invalid_range() (+2 more)
 
 ### Community 95 - "test_models.py"
 Cohesion: 0.29
 Nodes (9): _check_constraint_names(), _foreign_key_targets(), _index_names(), test_buyer_contracts_reject_non_utc_timestamps(), test_buyer_metadata_enforces_ownership_and_ordering_constraints(), test_buyer_workspace_rejects_duplicate_comparison_listing_ids(), test_buyer_workspace_rejects_more_than_four_comparison_listing_ids(), test_catalogue_metadata_contains_expected_tables() (+1 more)
 
+### Community 96 - "upsert_saved_search"
+Cohesion: 0.25
+Nodes (8): conversations(), ConversationSummary, SavedSearch, SavedSearchUpsert, saved_searches(), upsert_saved_search(), workspace(), get
+
+### Community 97 - "calculate_deal_position"
+Cohesion: 0.48
+Nodes (5): DealPosition, calculate_deal_position(), test_deal_position_reports_below_typical_price(), test_deal_position_requires_three_comparables(), DealPosition
+
+### Community 98 - "replace_comparison"
+Cohesion: 0.40
+Nodes (6): add_shortlist(), BuyerWorkspace, remove_shortlist(), replace_comparison(), ComparisonUpdate, put
+
+### Community 100 - "condition-evidence.tsx"
+Cohesion: 0.50
+Nodes (3): ConditionEvidencePanel(), groups, ConditionEvidence
+
 ## Knowledge Gaps
-- **416 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `css` (+411 more)
+- **417 isolated node(s):** `init.sh script`, `$schema`, `style`, `rsc`, `tsx` (+412 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **19 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **20 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `_datetime()` connect `SqlAlchemyIngestionRepository` to `contracts.py`, `ingestion_contracts.py`, `SqlAlchemyBuyerWorkspaceRepository`, `normalize_listing`, `buyer_sql_repository.py`?**
-  _High betweenness centrality (0.053) - this node is a cross-community bridge._
-- **Why does `create_app()` connect `create_app` to `contracts.py`, `BuyerWorkspaceRepository`, `OwnedResourceNotFound`, `SqlAlchemyBuyerWorkspaceRepository`, `test_auth.py`, `buyer_sql_repository.py`, `FakeBuyerRepository`?**
+- **Why does `_datetime()` connect `SqlAlchemyIngestionRepository` to `ingestion_contracts.py`, `SqlAlchemyBuyerWorkspaceRepository`, `contracts.py`, `test_media.py`, `normalize_listing`, `buyer_sql_repository.py`?**
+  _High betweenness centrality (0.072) - this node is a cross-community bridge._
+- **Why does `create_app()` connect `create_app` to `FixtureCatalogueRepository`, `main.py`, `buyer_routes.py`, `BuyerWorkspaceRepository`, `OwnedResourceNotFound`, `test_fresh_postgres_migrates_to_head`, `SqlAlchemyCatalogueRepository`, `contracts.py`, `AuthenticatedBuyer`, `test_media_api.py`, `test_auth.py`, `test_api.py`, `buyer_sql_repository.py`, `ListingQuery`, `FakeBuyerRepository`?**
   _High betweenness centrality (0.029) - this node is a cross-community bridge._
-- **Why does `BuyerWorkspaceRepository` connect `BuyerWorkspaceRepository` to `create_app`, `buyer_sql_repository.py`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+- **Why does `create_engine()` connect `test_fresh_postgres_migrates_to_head` to `test_buyer_repository.py`, `beat.py`, `SqlAlchemyIngestionRepository`, `create_app`?**
+  _High betweenness centrality (0.017) - this node is a cross-community bridge._
 - **Are the 27 inferred relationships involving `SqlAlchemyBuyerWorkspaceRepository` (e.g. with `buyer_repositories()` and `AnonymousWorkspaceMergeRequest`) actually correct?**
   _`SqlAlchemyBuyerWorkspaceRepository` has 27 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 27 inferred relationships involving `SqlAlchemyIngestionRepository` (e.g. with `CrawlRunSummary` and `ListingReference`) actually correct?**
-  _`SqlAlchemyIngestionRepository` has 27 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 30 inferred relationships involving `SqlAlchemyIngestionRepository` (e.g. with `CachedPhotoWrite` and `CrawlRunSummary`) actually correct?**
+  _`SqlAlchemyIngestionRepository` has 30 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 17 inferred relationships involving `create_app()` (e.g. with `AuthenticationError` and `AuthenticationUnavailableError`) actually correct?**
+  _`create_app()` has 17 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 23 inferred relationships involving `BuyerWorkspaceRepository` (e.g. with `add_shortlist()` and `append_turn()`) actually correct?**
   _`BuyerWorkspaceRepository` has 23 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 12 inferred relationships involving `FakeBuyerRepository` (e.g. with `AnonymousWorkspaceMergeRequest` and `BuyerWorkspace`) actually correct?**
-  _`FakeBuyerRepository` has 12 INFERRED edges - model-reasoned connections that need verification._

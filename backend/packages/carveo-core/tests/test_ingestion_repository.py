@@ -12,7 +12,7 @@ from uuid import UUID, uuid4
 import pytest
 from carveo_core.contracts import CompareRequest
 from carveo_core.database import create_engine, create_session_factory
-from carveo_core.ingestion import CreateRun
+from carveo_core.ingestion import CachedPhotoWrite, CreateRun
 from carveo_core.ingestion_contracts import (
     ListingReference,
     NormalizedConditionEvidence,
@@ -334,6 +334,44 @@ async def test_catalogue_emits_stable_carveo_url_for_cached_media(
     assert public_listing.photos == [f"/api/v1/media/{photo_id}"]
 
 
+async def test_photo_swap_keeps_shared_object_until_the_last_reference_is_replaced(
+    repository: SqlAlchemyIngestionRepository,
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    _, first_public_id = await observed_run(repository, correlation_key="shared-photo-first", item=listing())
+    _, second_public_id = await observed_run(
+        repository,
+        correlation_key="shared-photo-second",
+        item=listing(source_listing_id="fixture-002"),
+    )
+    async with session_factory() as session:
+        listing_ids = {
+            record.public_id: record.id
+            for record in await session.scalars(
+                select(ListingRecord).where(ListingRecord.public_id.in_([first_public_id, second_public_id]))
+            )
+        }
+
+    shared = cached_photo("a", "sha256/aa/shared.jpg")
+    replacement = cached_photo("b", "sha256/bb/replacement.jpg")
+    await repository.replace_listing_photos(listing_ids[first_public_id], [shared], NOW)
+    await repository.replace_listing_photos(listing_ids[second_public_id], [shared], NOW)
+
+    first_swap = await repository.replace_listing_photos(
+        listing_ids[first_public_id],
+        [replacement],
+        NOW + timedelta(minutes=1),
+    )
+    second_swap = await repository.replace_listing_photos(
+        listing_ids[second_public_id],
+        [replacement],
+        NOW + timedelta(minutes=1),
+    )
+
+    assert first_swap.obsolete_storage_keys == []
+    assert second_swap.obsolete_storage_keys == ["sha256/aa/shared.jpg"]
+
+
 async def test_concurrent_finalization_reconciles_absence_once(
     repository: SqlAlchemyIngestionRepository,
     session_factory: async_sessionmaker[AsyncSession],
@@ -352,6 +390,19 @@ async def test_concurrent_finalization_reconciles_absence_once(
         record = await session.scalar(select(ListingRecord).where(ListingRecord.public_id == public_id))
         assert record is not None
         assert record.consecutive_successful_misses == 1
+
+
+def cached_photo(hash_character: str, storage_key: str) -> CachedPhotoWrite:
+    return CachedPhotoWrite(
+        position=0,
+        source_url="http://fixture-origin:8080/media/fixture-suv.jpg",
+        provenance="fixture",
+        source_media_id="front",
+        storage_key=storage_key,
+        content_hash=hash_character * 64,
+        media_type="image/jpeg",
+        byte_size=100,
+    )
 
 
 async def test_purge_deletes_listing_media_and_buyer_references_but_anonymizes_prices(

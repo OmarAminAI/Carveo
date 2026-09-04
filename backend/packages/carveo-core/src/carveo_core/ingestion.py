@@ -49,6 +49,23 @@ class PurgeSummary(IngestionModel):
     storage_keys: list[str]
 
 
+class CachedPhotoWrite(IngestionModel):
+    position: int = Field(ge=0)
+    source_url: str = Field(min_length=1, max_length=2048)
+    provenance: Literal["fixture", "approved"]
+    source_media_id: str | None = Field(default=None, max_length=160)
+    storage_key: str = Field(min_length=1, max_length=512)
+    content_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+    media_type: Literal["image/jpeg", "image/png", "image/webp", "image/gif"]
+    byte_size: int = Field(gt=0, le=10 * 1024 * 1024)
+
+
+class PhotoSwapResult(IngestionModel):
+    outcome: Literal["updated", "unchanged"]
+    photo_ids: list[UUID]
+    obsolete_storage_keys: list[str]
+
+
 class IngestionRepository(Protocol):
     async def create_run(self, command: CreateRun) -> CrawlRunSummary: ...
 

@@ -150,10 +150,10 @@
     "semantic_hash": ""
   },
   "backend/packages/carveo-core/src/carveo_core/sql_repository.py": {
-    "mtime": 1787242027.0360365,
-    "seen": 1787257344.3151362,
-    "ast_hash": "96d9297118e8aaec47014af7585b2111",
-    "semantic_hash": "96d9297118e8aaec47014af7585b2111"
+    "mtime": 1788469594.9533875,
+    "seen": 1788470009.202704,
+    "ast_hash": "a69e77b5602890d62ad77226965b33f1",
+    "semantic_hash": ""
   },
   "backend/packages/carveo-core/src/carveo_core/valuation.py": {
     "mtime": 1787241638.223791,
@@ -816,9 +816,9 @@
     "semantic_hash": ""
   },
   "backend/docker-compose.yml": {
-    "mtime": 1788467959.7422514,
-    "seen": 1788468168.5869145,
-    "ast_hash": "40f304b35d33e911bce318bb8ff1aab6",
+    "mtime": 1788470057.9594598,
+    "seen": 1788470120.8377793,
+    "ast_hash": "18b45dbb94ea54d51f4d917f679012e3",
     "semantic_hash": ""
   },
   "codex.md": {
@@ -1407,6 +1407,24 @@
     "mtime": 1788469048.8870473,
     "seen": 1788469098.0432885,
     "ast_hash": "5ffe51e7e8452ee7860efff08a616bad",
+    "semantic_hash": ""
+  },
+  "backend/packages/carveo-core/src/carveo_core/ingestion.py": {
+    "mtime": 1788469650.6499748,
+    "seen": 1788470009.202704,
+    "ast_hash": "7896a75d9ae780914e82454e5427c209",
+    "semantic_hash": ""
+  },
+  "backend/packages/carveo-core/src/carveo_core/ingestion_sql_repository.py": {
+    "mtime": 1788469920.9451537,
+    "seen": 1788470009.202704,
+    "ast_hash": "af9eaa6d7ae2a059714e40732a637b1f",
+    "semantic_hash": ""
+  },
+  "backend/packages/carveo-core/tests/test_ingestion_repository.py": {
+    "mtime": 1788469891.3042326,
+    "seen": 1788470009.202704,
+    "ast_hash": "15c89818b815c832156f229ab3f180dc",
     "semantic_hash": ""
   }
 }
