@@ -88,3 +88,25 @@ section[class~="min-h-[520px]"] > .absolute.inset-0 { background-color: rgb(0 0 
 @media (max-width: 1023px) {
   .shell.grid > aside.sticky { position: static; }
 }
+
+/* Shared feedback stays quiet during repeated browsing. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--obsidian);
+  outline-offset: 3px;
+}
+.compare-tray :where(a, button):focus-visible { outline-color: var(--signal); }
+.vehicle-gallery button:focus-visible { outline-color: var(--signal); }
+.vehicle-card { transition: border-color 180ms ease-out, box-shadow 180ms ease-out; }
+.vehicle-card-image { transition: transform 220ms cubic-bezier(.2,.7,.2,1); }
+.compare-tray { padding-bottom: env(safe-area-inset-bottom, 0px); animation: tray-enter 200ms cubic-bezier(.2,.7,.2,1); }
+.comparison-scroll { overscroll-behavior-x: contain; }
+@keyframes tray-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@media (hover: hover) and (pointer: fine) {
+  .vehicle-card:hover { border-color: #aaa99f; box-shadow: 0 8px 24px #0b0b0c0a; }
+  .vehicle-card:hover .vehicle-card-image { transform: scale(1.025); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .compare-tray { animation: none; }
+  .vehicle-card:hover .vehicle-card-image { transform: none; }
+  button:active { transform: none; }
+}

@@ -40,6 +40,36 @@ test("comparison and shortlist persist in the browser profile", async ({ page })
   await expect(page.getByRole("button", { name: "Remove from shortlist" })).toHaveCount(1);
 });
 
+test("desktop filters update URL-backed results without an Apply action", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Desktop-only filter behavior.");
+  await page.goto("/en-ae/cars?view=list&sort=lowest-price&page=2");
+  await page.getByLabel("Toyota").check();
+  await expect(page).toHaveURL(/make=Toyota/);
+  await expect(page).toHaveURL(/view=list/);
+  await expect(page).toHaveURL(/sort=lowest-price/);
+  await expect(page).not.toHaveURL(/page=2/);
+});
+
+test("mobile filters keep a draft until buyers show results", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "Mobile-only filter behavior.");
+  await page.goto("/en-ae/cars?view=list");
+  await page.getByRole("button", { name: "Filters" }).click();
+  await page.getByLabel("Nissan").check();
+  await expect(page).toHaveURL(/view=list$/);
+  await page.getByRole("button", { name: "Show results" }).click();
+  await expect(page).toHaveURL(/make=Nissan/);
+  await expect(page).toHaveURL(/view=list/);
+});
+
+test("comparison tray identifies and removes a selected car", async ({ page }) => {
+  await page.goto("/en-ae/cars");
+  await page.getByRole("button", { name: "Compare" }).first().click();
+  const tray = page.getByRole("complementary", { name: "Selected cars" });
+  await expect(tray.getByText("1 of 4 cars selected")).toBeVisible();
+  await tray.getByRole("button", { name: "Remove 2022 Toyota Land Cruiser from comparison" }).click();
+  await expect(tray).toBeHidden();
+});
+
 test("model intelligence responds to controls without horizontal page overflow", async ({ page }) => {
   await page.goto("/en-ae/market/toyota/land-cruiser");
   await expect(page.getByRole("heading", { level: 1, name: "Toyota Land Cruiser" })).toBeVisible();

@@ -5,7 +5,7 @@
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1758 nodes · 3892 edges · 119 communities (93 shown, 26 thin omitted)
+- 1758 nodes · 3892 edges · 120 communities (93 shown, 27 thin omitted)
 - Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 450 edges (avg confidence: 0.94)
 - Token cost: 0 input · 0 output
 
@@ -117,6 +117,7 @@
 - index.ts
 - Frontend UI design discussion
 - api.ts
+- env.py
 
 ## God Nodes (most connected - your core abstractions)
 1. `SqlAlchemyIngestionRepository` - 58 edges
@@ -145,7 +146,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (119 total, 26 thin omitted)
+## Communities (120 total, 27 thin omitted)
 
 ### Community 0 - "FixtureCatalogueRepository"
 Cohesion: 0.06
@@ -336,8 +337,8 @@ Cohesion: 0.19
 Nodes (6): DealPosition, ModelMarketSummary, calculateDealPosition(), median(), FixtureCatalogueRepository, matches()
 
 ### Community 78 - "database.py"
-Cohesion: 0.13
-Nodes (16): do_run_migrations(), run_async_migrations(), run(), get_settings(), BaseSettings, model_validator, Settings, MonkeyPatch (+8 more)
+Cohesion: 0.16
+Nodes (14): run(), get_settings(), BaseSettings, model_validator, Settings, MonkeyPatch, test_production_requires_explicit_clerk_authorized_parties_and_a_verification_key(), test_settings_accept_clerk_cli_secret_without_copying_it() (+6 more)
 
 ### Community 79 - "carveo_api/media.py"
 Cohesion: 0.18
@@ -454,7 +455,7 @@ Nodes (5): components, $defs, operations, paths, webhooks
 ## Knowledge Gaps
 - **433 isolated node(s):** `init.sh script`, `$schema`, `style`, `rsc`, `tsx` (+428 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **26 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **27 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_

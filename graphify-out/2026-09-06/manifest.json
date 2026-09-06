@@ -288,9 +288,9 @@
     "semantic_hash": "73e45aa4650bed3220fe51e10b1dd674"
   },
   "frontend/src/app/en-ae/cars/[listingId]/page.tsx": {
-    "mtime": 1788655062.1186936,
-    "seen": 1788655095.0242693,
-    "ast_hash": "7b146321c58675c1456313692f8f5920",
+    "mtime": 1788623414.30512,
+    "seen": 1788647711.9063563,
+    "ast_hash": "1d6c0456ab522ea43bffb3c9beefb46b",
     "semantic_hash": ""
   },
   "frontend/src/app/en-ae/cars/loading.tsx": {
@@ -300,9 +300,9 @@
     "semantic_hash": ""
   },
   "frontend/src/app/en-ae/cars/page.tsx": {
-    "mtime": 1788655064.5801978,
-    "seen": 1788655095.0242693,
-    "ast_hash": "72739679285d5fc69386760502fd6c4f",
+    "mtime": 1788623689.8847997,
+    "seen": 1788647711.9063563,
+    "ast_hash": "adbabd996df7ed02aff59c5eb5855f1c",
     "semantic_hash": ""
   },
   "frontend/src/app/en-ae/compare/data.test.ts": {
@@ -426,9 +426,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/compare-button.tsx": {
-    "mtime": 1788654986.7695677,
-    "seen": 1788655014.6185467,
-    "ast_hash": "c4d2165c48fc66b2ff90c89806bcaaf7",
+    "mtime": 1788623569.3386,
+    "seen": 1788647711.9063563,
+    "ast_hash": "021bf78a39db7b71ebbfe4756dde4fea",
     "semantic_hash": ""
   },
   "frontend/src/components/compare-tray.tsx": {
@@ -474,9 +474,9 @@
     "semantic_hash": "a92106b413e725ec01c85a933ca16123"
   },
   "frontend/src/components/filter-fields.tsx": {
-    "mtime": 1788654989.3733864,
-    "seen": 1788655014.6185467,
-    "ast_hash": "c773f16c4c7dd69b2990efe11cc6a721",
+    "mtime": 1788623209.8612337,
+    "seen": 1788647711.9063563,
+    "ast_hash": "f19f0cbf45b569d3b56bcc732f7d759d",
     "semantic_hash": ""
   },
   "frontend/src/components/market-charts.test.tsx": {
@@ -1494,9 +1494,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/browse-navigation.test.tsx": {
-    "mtime": 1788655067.3525975,
-    "seen": 1788655095.0242693,
-    "ast_hash": "89f1c902b8f5985e8481582b75ee8635",
+    "mtime": 1788623689.8827994,
+    "seen": 1788647711.9063563,
+    "ast_hash": "3a8d07ffb0e6783d4dd592bf3007dc59",
     "semantic_hash": ""
   },
   "frontend/src/components/browse-navigation.tsx": {
