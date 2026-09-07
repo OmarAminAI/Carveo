@@ -23,9 +23,9 @@ export function SearchConsole() {
 
   return (
     <section className="border border-white/25 bg-[rgba(11,11,12,0.92)] p-4 text-white md:p-6" aria-label="Vehicle search">
-      <div className="mb-5 flex w-full border border-white/20 p-1 md:w-fit" role="group" aria-label="Search mode">
-        <Button type="button" className="min-w-0 flex-1 px-1 text-[11px] sm:px-2 sm:text-sm" variant={mode === "direct" ? "signal" : "ghost"} size="sm" onClick={() => setMode("direct")}>Search inventory</Button>
-        <Button type="button" className="min-w-0 flex-1 px-1 text-[11px] sm:px-2 sm:text-sm" variant={mode === "assistant" ? "signal" : "ghost"} size="sm" onClick={() => setMode("assistant")}>Describe what you need</Button>
+      <div className="mb-5 grid w-full grid-cols-1 gap-1 rounded-full border border-white/20 bg-white/[0.04] p-1 md:flex md:w-fit" role="group" aria-label="Search mode">
+        <Button type="button" className="w-full whitespace-nowrap rounded-full px-3 text-xs md:w-auto md:text-sm" variant={mode === "direct" ? "signal" : "ghost"} size="sm" onClick={() => setMode("direct")}>Search inventory</Button>
+        <Button type="button" className="w-full whitespace-nowrap rounded-full px-3 text-xs md:w-auto md:text-sm" variant={mode === "assistant" ? "signal" : "ghost"} size="sm" onClick={() => setMode("assistant")}>Describe what you need</Button>
       </div>
       {mode === "direct" ? (
         <form action="/en-ae/cars" className="grid gap-2 md:grid-cols-[minmax(0,1fr)_180px_56px]">

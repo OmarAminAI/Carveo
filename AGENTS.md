@@ -11,6 +11,10 @@ Rules:
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 
+## Frontend preview verification
+
+After any frontend change, clear the generated frontend cache and rebuild the Docker web service before checking localhost. Run the equivalent of `Remove-Item frontend/.next -Recurse -Force` with the target path validated inside the workspace, then rebuild with `docker compose -f backend/docker-compose.yml up -d --no-deps --build web`. Verify the rebuilt `carveo-web-1` container serves the current UI, especially when localhost may still be serving a stale bundle.
+
 ## Agent skills
 
 ### Issue tracker

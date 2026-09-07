@@ -14,6 +14,20 @@ describe("SearchConsole", () => {
     expect(screen.getByRole("button", { name: "Start AI search" })).toBeInTheDocument();
   });
 
+  it("keeps the search mode labels on one line", () => {
+    render(<SearchConsole />);
+
+    expect(screen.getByRole("button", { name: "Search inventory" })).toHaveClass("whitespace-nowrap");
+    expect(screen.getByRole("button", { name: "Describe what you need" })).toHaveClass("whitespace-nowrap");
+  });
+
+  it("keeps the mode toggle stacked until the panel is wide enough for both labels", () => {
+    render(<SearchConsole />);
+
+    expect(screen.getByRole("group", { name: "Search mode" })).toHaveClass("md:flex");
+    expect(screen.getByRole("group", { name: "Search mode" })).not.toHaveClass("sm:grid-cols-2");
+  });
+
   it("offers keyboard-ready make and model suggestions", async () => {
     const user = userEvent.setup();
     render(<SearchConsole />);
