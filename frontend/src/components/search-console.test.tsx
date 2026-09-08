@@ -28,6 +28,13 @@ describe("SearchConsole", () => {
     expect(screen.getByRole("group", { name: "Search mode" })).not.toHaveClass("sm:grid-cols-2");
   });
 
+  it("does not wrap the search modes in a shared pill surface", () => {
+    render(<SearchConsole />);
+
+    const modeGroup = screen.getByRole("group", { name: "Search mode" });
+    expect(modeGroup).not.toHaveClass("rounded-full", "border", "bg-white/[0.04]", "p-1");
+  });
+
   it("offers keyboard-ready make and model suggestions", async () => {
     const user = userEvent.setup();
     render(<SearchConsole />);
