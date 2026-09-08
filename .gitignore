@@ -13,3 +13,14 @@ apps/web/playwright-report/
 apps/web/test-results/
 frontend/test-results/
 frontend/tsconfig.tsbuildinfo
+
+# Internal engineering documentation
+/AGENTS.md
+/codex.md
+/CONTEXT-MAP.md
+/DESIGN.md
+/docs/agents/
+/docs/reviews/
+/docs/superpowers/
+/backend/workers/ingestion/CONTEXT.md
+/backend/workers/ingestion/docs/adr/
